@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Settings - ThexSol Fine Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
+    />
+    <style>
+      .settings-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* SMTP Preset Styles */
+      .smtp-presets {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+
+      .smtp-presets h4 {
+        margin: 0 0 15px 0;
+        color: #495057;
+        font-size: 16px;
+      }
+
+      .preset-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .preset-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      }
+
+      .preset-icon {
+        font-size: 16px;
+      }
+
+      .gmail-btn {
+        background: linear-gradient(135deg, #ea4335, #fbbc04);
+        color: white;
+        box-shadow: 0 2px 8px rgba(234, 67, 53, 0.3);
+      }
+
+      .gmail-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(234, 67, 53, 0.4);
+      }
+
+      .outlook-btn {
+        background: linear-gradient(135deg, #0078d4, #106ebe);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+      }
+
+      .outlook-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+      }
+
+      .clear-btn {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+      }
+
+      .clear-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+      }
+
+      /* SMTP Instructions */
+      .smtp-instructions {
+        margin-bottom: 25px;
+      }
+
+      .instruction-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .gmail-card {
+        border-left: 4px solid #ea4335;
+      }
+
+      .instruction-card h4 {
+        margin: 0 0 15px 0;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .instruction-card ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .instruction-card li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+
+      .instruction-card ul {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      .instruction-card ul li {
+        margin-bottom: 4px;
+      }
+
+      .instruction-card a {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .instruction-card a:hover {
+        text-decoration: underline;
+      }
+
+      .warning-box {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 15px;
+        color: #856404;
+        font-size: 14px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .settings-tabs {
+        display: flex;
+        background: #ecf0f1;
+        border-radius: 10px 10px 0 0;
+        overflow: hidden;
+        margin-bottom: 0;
+      }
+
+      .settings-tab {
+        flex: 1;
+        padding: 15px 20px;
+        background: #ecf0f1;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+      }
+
+      .settings-tab.active {
+        background: white;
+        border-bottom-color: #3498db;
+        color: #3498db;
+      }
+
+      .settings-tab:hover {
+        background: #d5dbdb;
+      }
+
+      .settings-tab.active:hover {
+        background: white;
+      }
+
+      .settings-content {
+        background: white;
+        border-radius: 0 0 10px 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .settings-section {
+        margin-bottom: 40px;
+      }
+
+      .settings-section h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #ecf0f1;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .admin-profile-section {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 30px;
+        align-items: start;
+      }
+
+      .admin-image-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .admin-image-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 4px solid #3498db;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+      }
+
+      .admin-image-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+      }
+
+      .admin-image-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .admin-image-container input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .admin-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .admin-image-container:hover .admin-image-overlay {
+        opacity: 1;
+      }
+
+      .admin-details-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .settings-form-group {
+        margin-bottom: 20px;
+      }
+
+      .settings-form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .settings-form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+      }
+
+      .settings-form-group input,
+      .settings-form-group textarea,
+      .settings-form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+      }
+
+      .settings-form-group input:focus,
+      .settings-form-group textarea:focus,
+      .settings-form-group select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      .settings-form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .password-section {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .password-section h4 {
+        color: #8e5c00;
+        margin-top: 0;
+      }
+
+      .email-test-section {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .email-test-section h4 {
+        color: #0c5460;
+        margin-top: 0;
+      }
+
+      .settings-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ecf0f1;
+      }
+
+      .btn-primary {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #2980b9;
+      }
+
+      .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background-color: #7f8c8d;
+      }
+
+      .btn-warning {
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-warning:hover {
+        background-color: #e67e22;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-success:hover {
+        background-color: #218838;
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .admin-profile-section {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .admin-details-section {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-tabs {
+          flex-direction: column;
+        }
+
+        .settings-actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-actions">
+        <h2>Admin Settings</h2>
+        <div class="nav-actions">
+          <a href="/" class="action-link">← Back to Dashboard</a>
+          <a href="/manage_employees" class="action-link">👥 Employees</a>
+          <a href="/manage_violations" class="action-link">⚠️ Violations</a>
+          <a href="/logout" class="action-link">Logout</a>
+        </div>
+      </div>
+
+      <div class="settings-container">
+        <div class="settings-tabs">
+          <button class="settings-tab active" onclick="switchTab('profile')">
+            <span>👤 Profile Settings</span>
+          </button>
+          <button class="settings-tab" onclick="switchTab('email')">
+            <span>📧 Email Configuration</span>
+          </button>
+          <button class="settings-tab" onclick="switchTab('security')">
+            <span>🔒 Security</span>
+          </button>
+        </div>
+
+        <div class="settings-content">
+          <!-- Success/Error Messages -->
+          <div id="successMessage" class="success-message"></div>
+          <div id="errorMessage" class="error-message"></div>
+
+          <!-- Profile Settings Tab -->
+          <div id="profile-tab" class="tab-panel active">
+            <form id="profileForm" enctype="multipart/form-data">
+              <div class="settings-section">
+                <h3>Personal Information</h3>
+                <div class="admin-profile-section">
+                  <div class="admin-image-section">
+                    <div class="admin-image-container">
+                      <img
+                        id="adminImagePreview"
+                        src="/static/default-avatar.png"
+                        alt="Admin Photo"
+                        class="admin-image-preview"
+                        data-fancybox="admin-gallery"
+                        data-src="/static/default-avatar.png"
+                        title="Admin Profile Photo"
+                      />
+                      <input
+                        type="file"
+                        id="adminImage"
+                        name="admin_image"
+                        accept="image/*"
+                        onchange="previewAdminImage(event)"
+                      />
+                      <input
+                        type="hidden"
+                        id="currentAdminImage"
+                        name="current_image"
+                      />
+                      <div class="admin-image-overlay">
+                        <span>📸 Change Photo</span>
+                      </div>
+                    </div>
+                    <p
+                      style="
+                        text-align: center;
+                        color: #7f8c8d;
+                        font-size: 14px;
+                      "
+                    >
+                      Click to upload admin photo
+                    </p>
+                  </div>
+
+                  <div class="admin-details-section">
+                    <div class="settings-form-group">
+                      <label for="adminName">Full Name:</label>
+                      <input
+                        type="text"
+                        id="adminName"
+                        name="admin_name"
+                        placeholder="Enter admin name"
+                      />
+                    </div>
+
+                    <div class="settings-form-group">
+                      <label for="adminEmail">Email Address:</label>
+                      <input
+                        type="email"
+                        id="adminEmail"
+                        name="admin_email"
+                        placeholder="admin@company.com"
+                      />
+                    </div>
+
+                    <div class="settings-form-group">
+                      <label for="adminPhone">Phone Number:</label>
+                      <input
+                        type="tel"
+                        id="adminPhone"
+                        name="admin_phone"
+                        placeholder="+92-300-1234567"
+                      />
+                    </div>
+
+                    <div class="settings-form-group">
+                      <label for="companyName">Company Name:</label>
+                      <input
+                        type="text"
+                        id="companyName"
+                        name="company_name"
+                        placeholder="ThexSol"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-actions">
+                <button
+                  type="button"
+                  onclick="saveProfile()"
+                  class="btn-primary"
+                >
+                  Save Profile
+                </button>
+                <button
+                  type="button"
+                  onclick="resetProfileForm()"
+                  class="btn-secondary"
+                >
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Email Configuration Tab -->
+          <div id="email-tab" class="tab-panel">
+            <form id="emailForm">
+              <div class="settings-section">
+                <h3>SMTP Configuration</h3>
+                <p style="color: #7f8c8d; margin-bottom: 20px">
+                  Configure email settings to send receipts and reports to
+                  employees.
+                </p>
+
+                <!-- Quick Setup Presets -->
+                <div class="smtp-presets">
+                  <h4>Quick Setup:</h4>
+                  <div class="preset-buttons">
+                    <button
+                      type="button"
+                      onclick="setGmailPreset()"
+                      class="preset-btn gmail-btn"
+                    >
+                      <span class="preset-icon">📧</span>
+                      Gmail Setup
+                    </button>
+                    <button
+                      type="button"
+                      onclick="setOutlookPreset()"
+                      class="preset-btn outlook-btn"
+                    >
+                      <span class="preset-icon">📮</span>
+                      Outlook Setup
+                    </button>
+                    <button
+                      type="button"
+                      onclick="clearSmtpSettings()"
+                      class="preset-btn clear-btn"
+                    >
+                      <span class="preset-icon">🗑️</span>
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Gmail Instructions -->
+                <div id="gmailInstructions" class="smtp-instructions hidden">
+                  <div class="instruction-card gmail-card">
+                    <h4>📧 Gmail Setup Instructions:</h4>
+                    <ol>
+                      <li>
+                        <strong>Enable 2-Factor Authentication</strong> on your
+                        Gmail account
+                      </li>
+                      <li>
+                        <strong>Generate App Password</strong>:
+                        <ul>
+                          <li>
+                            Go to
+                            <a
+                              href="https://myaccount.google.com/security"
+                              target="_blank"
+                              >Google Account Security</a
+                            >
+                          </li>
+                          <li>Click "2-Step Verification" → "App passwords"</li>
+                          <li>Generate password for "Mail"</li>
+                        </ul>
+                      </li>
+                      <li>
+                        <strong>Use the App Password</strong> (not your regular
+                        Gmail password)
+                      </li>
+                      <li>
+                        <strong>Test the connection</strong> by sending a test
+                        email
+                      </li>
+                    </ol>
+                    <div class="warning-box">
+                      ⚠️ <strong>Important:</strong> Use App Password, not your
+                      regular Gmail password!
+                    </div>
+                  </div>
+                </div>
+
+                <div class="admin-details-section">
+                  <div class="settings-form-group">
+                    <label for="smtpServer">SMTP Server:</label>
+                    <input
+                      type="text"
+                      id="smtpServer"
+                      name="smtp_server"
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+
+                  <div class="settings-form-group">
+                    <label for="smtpPort">SMTP Port:</label>
+                    <input
+                      type="number"
+                      id="smtpPort"
+                      name="smtp_port"
+                      placeholder="587"
+                      value="587"
+                    />
+                  </div>
+
+                  <div class="settings-form-group">
+                    <label for="smtpUsername">Email Username:</label>
+                    <input
+                      type="email"
+                      id="smtpUsername"
+                      name="smtp_username"
+                      placeholder="your-email@gmail.com"
+                    />
+                  </div>
+
+                  <div class="settings-form-group">
+                    <label for="smtpPassword">Email Password:</label>
+                    <input
+                      type="password"
+                      id="smtpPassword"
+                      name="smtp_password"
+                      placeholder="Leave blank to keep current"
+                    />
+                  </div>
+
+                  <div class="settings-form-group full-width">
+                    <label for="emailSignature">Email Signature:</label>
+                    <textarea
+                      id="emailSignature"
+                      name="email_signature"
+                      placeholder="Best regards,&#10;ThexSol Fine Management System"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="email-test-section">
+                <h4>Test Email Configuration</h4>
+                <p>Send a test email to verify your settings:</p>
+                <div style="display: flex; gap: 10px; align-items: center">
+                  <input
+                    type="email"
+                    id="testEmail"
+                    placeholder="test@example.com"
+                    style="flex: 1"
+                  />
+                  <button
+                    type="button"
+                    onclick="sendTestEmail()"
+                    class="btn-success"
+                  >
+                    📧 Send Test Email
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-actions">
+                <button
+                  type="button"
+                  onclick="saveEmailSettings()"
+                  class="btn-primary"
+                >
+                  Save Email Settings
+                </button>
+                <button
+                  type="button"
+                  onclick="sendTestEmail()"
+                  class="btn-success"
+                >
+                  📧 Send Test Email
+                </button>
+                <button
+                  type="button"
+                  onclick="resetEmailForm()"
+                  class="btn-secondary"
+                >
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Tab -->
+          <div id="security-tab" class="tab-panel">
+            <div class="settings-section">
+              <h3>Change Password</h3>
+              <div class="password-section">
+                <h4>⚠️ Password Change</h4>
+                <p>
+                  Changing your password will affect your login credentials for
+                  the admin panel.
+                </p>
+
+                <div class="admin-details-section">
+                  <div class="settings-form-group">
+                    <label for="currentPassword">Current Password:</label>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      placeholder="Enter current password"
+                    />
+                  </div>
+
+                  <div class="settings-form-group">
+                    <label for="newPassword">New Password:</label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      placeholder="Enter new password (min 6 characters)"
+                    />
+                  </div>
+
+                  <div class="settings-form-group full-width">
+                    <label for="confirmPassword">Confirm New Password:</label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button
+                type="button"
+                onclick="changePassword()"
+                class="btn-warning"
+              >
+                Change Password
+              </button>
+              <button
+                type="button"
+                onclick="clearPasswordForm()"
+                class="btn-secondary"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentSettings = {};
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadAdminSettings();
+      });
+
+      function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll(".settings-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        event.target.closest(".settings-tab").classList.add("active");
+
+        // Update tab panels
+        document.querySelectorAll(".tab-panel").forEach((panel) => {
+          panel.classList.remove("active");
+        });
+        document.getElementById(tabName + "-tab").classList.add("active");
+      }
+
+      async function loadAdminSettings() {
+        try {
+          const response = await fetch("/get_admin_settings");
+          const settings = await response.json();
+          currentSettings = settings;
+
+          // Populate profile form
+          document.getElementById("adminName").value =
+            settings.admin_name || "";
+          document.getElementById("adminEmail").value =
+            settings.admin_email || "";
+          document.getElementById("adminPhone").value =
+            settings.admin_phone || "";
+          document.getElementById("companyName").value =
+            settings.company_name || "";
+
+          // Set admin image
+          if (settings.admin_image_path) {
+            document.getElementById("adminImagePreview").src =
+              `/employee_image/${settings.admin_image_path}`;
+            document.getElementById("currentAdminImage").value =
+              settings.admin_image_path;
+          }
+
+          // Populate email form
+          document.getElementById("smtpServer").value =
+            settings.smtp_server || "";
+          document.getElementById("smtpPort").value = settings.smtp_port || 587;
+          document.getElementById("smtpUsername").value =
+            settings.smtp_username || "";
+          document.getElementById("emailSignature").value =
+            settings.email_signature || "";
+        } catch (error) {
+          console.error("Error loading settings:", error);
+          showError("Failed to load settings");
+        }
+      }
+
+      function previewAdminImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("adminImagePreview");
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.setAttribute("data-src", e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      // SMTP Preset Functions
+      function setGmailPreset() {
+        document.getElementById("smtpServer").value = "smtp.gmail.com";
+        document.getElementById("smtpPort").value = "587";
+        document.getElementById("smtpUsername").placeholder =
+          "your-email@gmail.com";
+        document.getElementById("smtpPassword").placeholder =
+          "Your Gmail App Password";
+
+        // Show Gmail instructions
+        document.getElementById("gmailInstructions").classList.remove("hidden");
+
+        // Focus on username field
+        document.getElementById("smtpUsername").focus();
+
+        showSuccess(
+          "Gmail SMTP settings configured! Please enter your Gmail address and App Password.",
+        );
+      }
+
+      function setOutlookPreset() {
+        document.getElementById("smtpServer").value = "smtp-mail.outlook.com";
+        document.getElementById("smtpPort").value = "587";
+        document.getElementById("smtpUsername").placeholder =
+          "your-email@outlook.com";
+        document.getElementById("smtpPassword").placeholder =
+          "Your Outlook Password";
+
+        // Hide Gmail instructions
+        document.getElementById("gmailInstructions").classList.add("hidden");
+
+        // Focus on username field
+        document.getElementById("smtpUsername").focus();
+
+        showSuccess(
+          "Outlook SMTP settings configured! Please enter your Outlook credentials.",
+        );
+      }
+
+      function clearSmtpSettings() {
+        document.getElementById("smtpServer").value = "";
+        document.getElementById("smtpPort").value = "587";
+        document.getElementById("smtpUsername").value = "";
+        document.getElementById("smtpPassword").value = "";
+
+        // Hide instructions
+        document.getElementById("gmailInstructions").classList.add("hidden");
+
+        showSuccess("SMTP settings cleared.");
+      }
+
+      async function sendTestEmail() {
+        const smtpServer = document.getElementById("smtpServer").value;
+        const smtpPort = document.getElementById("smtpPort").value;
+        const smtpUsername = document.getElementById("smtpUsername").value;
+        const smtpPassword = document.getElementById("smtpPassword").value;
+
+        if (!smtpServer || !smtpUsername) {
+          showError("Please fill in SMTP server and username before testing.");
+          return;
+        }
+
+        if (!smtpPassword) {
+          showError("Please enter your password to test the email connection.");
+          return;
+        }
+
+        try {
+          // First save the settings temporarily
+          const formData = new FormData();
+          Object.keys(currentSettings).forEach((key) => {
+            formData.append(key, currentSettings[key]);
+          });
+
+          formData.set("smtp_server", smtpServer);
+          formData.set("smtp_port", smtpPort);
+          formData.set("smtp_username", smtpUsername);
+          formData.set("smtp_password", smtpPassword);
+
+          const response = await fetch("/update_admin_settings", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.status === "success") {
+            // Now try to send a test email
+            const testResponse = await fetch("/send_test_email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ to_email: smtpUsername }),
+            });
+
+            const testResult = await testResponse.json();
+            if (testResult.status === "success") {
+              showSuccess("✅ Test email sent successfully! Check your inbox.");
+            } else {
+              showError("❌ Test email failed: " + testResult.message);
+            }
+          } else {
+            showError("Failed to save settings for testing: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error sending test email:", error);
+          showError("Failed to send test email. Please check your settings.");
+        }
+      }
+
+      async function saveProfile() {
+        const form = document.getElementById("profileForm");
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("/update_admin_settings", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.status === "success") {
+            showSuccess("Profile updated successfully!");
+            loadAdminSettings();
+          } else {
+            showError("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error saving profile:", error);
+          showError("Failed to save profile");
+        }
+      }
+
+      async function saveEmailSettings() {
+        const formData = new FormData();
+
+        // Copy current settings
+        Object.keys(currentSettings).forEach((key) => {
+          if (key !== "smtp_password") {
+            formData.append(key, currentSettings[key] || "");
+          }
+        });
+
+        // Add email settings
+        formData.set(
+          "smtp_server",
+          document.getElementById("smtpServer").value,
+        );
+        formData.set("smtp_port", document.getElementById("smtpPort").value);
+        formData.set(
+          "smtp_username",
+          document.getElementById("smtpUsername").value,
+        );
+        formData.set(
+          "email_signature",
+          document.getElementById("emailSignature").value,
+        );
+
+        const password = document.getElementById("smtpPassword").value;
+        if (password) {
+          formData.set("smtp_password", password);
+        }
+
+        try {
+          const response = await fetch("/update_admin_settings", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.status === "success") {
+            showSuccess("Email settings updated successfully!");
+            document.getElementById("smtpPassword").value = "";
+          } else {
+            showError("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error saving email settings:", error);
+          showError("Failed to save email settings");
+        }
+      }
+
+      async function changePassword() {
+        const currentPassword =
+          document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          showError("Please fill in all password fields");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showError("New passwords do not match");
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          showError("New password must be at least 6 characters");
+          return;
+        }
+
+        try {
+          const response = await fetch("/change_admin_password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              current_password: currentPassword,
+              new_password: newPassword,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.status === "success") {
+            showSuccess("Password changed successfully!");
+            clearPasswordForm();
+          } else {
+            showError("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error changing password:", error);
+          showError("Failed to change password");
+        }
+      }
+
+      async function sendTestEmail() {
+        const testEmail = document.getElementById("testEmail").value;
+        if (!testEmail) {
+          showError("Please enter a test email address");
+          return;
+        }
+
+        // This would need a backend route to handle test emails
+        showSuccess("Test email functionality not implemented yet");
+      }
+
+      function resetProfileForm() {
+        loadAdminSettings();
+      }
+
+      function resetEmailForm() {
+        loadAdminSettings();
+      }
+
+      function clearPasswordForm() {
+        document.getElementById("currentPassword").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+      }
+
+      function showSuccess(message) {
+        const successDiv = document.getElementById("successMessage");
+        successDiv.textContent = message;
+        successDiv.style.display = "block";
+        document.getElementById("errorMessage").style.display = "none";
+
+        setTimeout(() => {
+          successDiv.style.display = "none";
+        }, 5000);
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        document.getElementById("successMessage").style.display = "none";
+
+        setTimeout(() => {
+          errorDiv.style.display = "none";
+        }, 5000);
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script>
+      // Initialize fancybox when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof Fancybox !== "undefined") {
+          Fancybox.bind("[data-fancybox]", {
+            loop: false,
+            keyboard: false,
+            toolbar: {
+              display: {
+                left: ["infobar"],
+                middle: [],
+                right: ["close"],
+              },
+            },
+            Images: {
+              zoom: false,
+            },
+            Thumbs: {
+              showOnStart: false,
+            },
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

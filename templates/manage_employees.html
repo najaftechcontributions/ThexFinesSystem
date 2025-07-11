@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Employee Management - ThexSol Fine Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
+    />
+    <style>
+      .employee-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .employee-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .employee-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .employee-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .employee-stats {
+        display: flex;
+        gap: 20px;
+        color: #7f8c8d;
+        font-size: 14px;
+      }
+
+      .employee-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .edit-form {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #ecf0f1;
+      }
+
+      .edit-form input {
+        width: auto;
+        margin-right: 10px;
+      }
+
+      .stats-summary {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        text-align: center;
+      }
+
+      .stat-item h3 {
+        margin: 0 0 5px 0;
+        font-size: 24px;
+      }
+
+      .stat-item p {
+        margin: 0;
+        opacity: 0.9;
+      }
+
+      /* ===== IMAGE UPLOAD COMPONENTS ===== */
+      .image-upload-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-preview {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 2px dashed #ddd;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+      }
+
+      .image-preview:hover {
+        border-color: #3498db;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      }
+
+      .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .upload-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 12px;
+        text-align: center;
+        padding: 5px;
+        border-radius: 50%;
+      }
+
+      .image-preview:hover .upload-overlay {
+        opacity: 1;
+      }
+
+      #employeeImage {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      /* ===== EMPLOYEE CARD STYLING ===== */
+      .employee-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 15px;
+      }
+
+      .employee-avatar-container {
+        flex-shrink: 0;
+      }
+
+      .employee-card-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ecf0f1;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .employee-card-avatar:hover {
+        transform: scale(1.05);
+        border-color: #3498db;
+        box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3);
+      }
+
+      .employee-details {
+        flex: 1;
+      }
+
+      .employee-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 8px;
+      }
+
+      .employee-meta {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+
+      .employee-dept {
+        background: #3498db;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .employee-id {
+        background: #95a5a6;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .employee-contact {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .employee-phone,
+      .employee-email {
+        font-size: 12px;
+        color: #7f8c8d;
+      }
+
+      .employee-stats {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        background: #ecf0f1;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #2c3e50;
+      }
+
+      /* ===== EDIT FORM STYLING ===== */
+      .edit-form {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 25px;
+        margin-top: 20px;
+        display: none;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .edit-form.active {
+        display: block;
+      }
+
+      .edit-form-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 25px;
+        margin-bottom: 20px;
+      }
+
+      .edit-image-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .edit-employee-image-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 3px solid #ddd;
+        transition: all 0.3s ease;
+      }
+
+      .edit-employee-image-container:hover {
+        border-color: #3498db;
+        transform: scale(1.05);
+      }
+
+      .edit-employee-image-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .edit-employee-image-container input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .edit-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .edit-employee-image-container:hover .edit-image-overlay {
+        opacity: 1;
+      }
+
+      .edit-fields-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .edit-field {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .edit-field label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #2c3e50;
+      }
+
+      .edit-field input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      /* ===== TABLE VIEW STYLING ===== */
+      .employees-table-view {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .employees-data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .employees-data-table th {
+        background: #34495e;
+        color: white;
+        padding: 15px 12px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .employees-data-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #ecf0f1;
+        vertical-align: middle;
+      }
+
+      .employees-data-table tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .table-employee-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .table-employee-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ecf0f1;
+        flex-shrink: 0;
+      }
+
+      .table-employee-info {
+        flex: 1;
+      }
+
+      .table-employee-name {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 3px;
+      }
+
+      .table-employee-meta {
+        font-size: 12px;
+        color: #7f8c8d;
+      }
+
+      .table-contact-info {
+        font-size: 13px;
+        color: #7f8c8d;
+      }
+
+      .table-contact-info div {
+        margin-bottom: 3px;
+      }
+
+      .table-stats {
+        text-align: center;
+      }
+
+      .table-stats-value {
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 16px;
+      }
+
+      .table-stats-label {
+        font-size: 11px;
+        color: #7f8c8d;
+      }
+
+      /* ===== ACTION BUTTONS ===== */
+      .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .save-btn {
+        background-color: #27ae60 !important;
+      }
+
+      .save-btn:hover {
+        background-color: #219a52 !important;
+      }
+
+      .cancel-btn {
+        background-color: #95a5a6 !important;
+      }
+
+      .cancel-btn:hover {
+        background-color: #7f8c8d !important;
+      }
+
+      /* ===== RESPONSIVE DESIGN ===== */
+      @media (max-width: 768px) {
+        .edit-form-grid {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .edit-fields-section {
+          grid-template-columns: 1fr;
+        }
+
+        .employee-header {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .employee-meta,
+        .employee-contact,
+        .employee-stats {
+          justify-content: center;
+        }
+
+        .employees-data-table {
+          font-size: 12px;
+        }
+
+        .table-employee-cell {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-actions">
+        <h2>Employee Management</h2>
+        <div class="nav-actions">
+          <a href="/" class="action-link">← Back to Dashboard</a>
+          <a href="/manage_violations" class="action-link">⚠️ Violations</a>
+          <a href="/generate_report" class="report-btn" target="_blank"
+            >📊 Generate Report</a
+          >
+          <a href="/logout" class="action-link">Logout</a>
+        </div>
+      </div>
+
+      <!-- Statistics Summary -->
+      <div class="stats-summary">
+        <h3>Employee Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <h3 id="totalEmployees">0</h3>
+            <p>Total Employees</p>
+          </div>
+          <div class="stat-item">
+            <h3 id="employeesWithFines">0</h3>
+            <p>Employees with Fines</p>
+          </div>
+          <div class="stat-item">
+            <h3 id="avgFinesPerEmployee">0</h3>
+            <p>Avg Fines per Employee</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add New Employee -->
+      <div class="section">
+        <h3>Add New Employee</h3>
+        <form id="addEmployeeForm" enctype="multipart/form-data">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="newEmployeeName">Employee Name:</label>
+              <input
+                type="text"
+                id="newEmployeeName"
+                name="name"
+                placeholder="Enter full name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="newEmployeeId">Employee ID:</label>
+              <input
+                type="text"
+                id="newEmployeeId"
+                name="employee_id"
+                placeholder="e.g., EMP001"
+              />
+            </div>
+            <div class="form-group">
+              <label for="newEmployeeDept">Department:</label>
+              <input
+                type="text"
+                id="newEmployeeDept"
+                name="department"
+                placeholder="e.g., IT, HR, Sales"
+              />
+            </div>
+            <div class="form-group">
+              <label for="newEmployeePhone">Phone:</label>
+              <input
+                type="tel"
+                id="newEmployeePhone"
+                name="phone"
+                placeholder="e.g., +92-300-1234567"
+              />
+            </div>
+            <div class="form-group">
+              <label for="newEmployeeEmail">Email:</label>
+              <input
+                type="email"
+                id="newEmployeeEmail"
+                name="email"
+                placeholder="e.g., employee@company.com"
+              />
+            </div>
+            <div class="form-group">
+              <label for="employeeImage">Employee Photo:</label>
+              <div class="image-upload-container">
+                <input
+                  type="file"
+                  id="employeeImage"
+                  name="image"
+                  accept="image/*"
+                  onchange="previewImage(event)"
+                />
+                <div class="image-preview" id="imagePreview">
+                  <img
+                    id="previewImg"
+                    src="/static/default-avatar.png"
+                    alt="Preview"
+                  />
+                  <div class="upload-overlay">
+                    <span>📸 Click to upload photo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="addNewEmployee()" class="add-btn">
+              Add Employee
+            </button>
+            <button type="button" onclick="resetForm()" class="reset-btn">
+              Reset Form
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Employee List -->
+      <div class="section">
+        <h3>All Employees</h3>
+        <div class="filtering-panel">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="searchEmployee">Search Employee:</label>
+              <input
+                type="text"
+                id="searchEmployee"
+                placeholder="Search by name..."
+                onkeyup="filterEmployees()"
+              />
+            </div>
+            <div class="filter-group">
+              <label for="sortEmployees">Sort by:</label>
+              <select id="sortEmployees" onchange="sortEmployeesList()">
+                <option value="name">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="fines-desc">Most Fines</option>
+                <option value="fines-asc">Least Fines</option>
+                <option value="amount-desc">Highest Total</option>
+                <option value="amount-asc">Lowest Total</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="viewMode">View Mode:</label>
+              <select id="viewMode" onchange="toggleViewMode()">
+                <option value="cards">Card View</option>
+                <option value="table">Table View</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card View -->
+        <div id="employeesList" class="employees-cards-view">
+          <!-- Employee cards will be populated here -->
+        </div>
+
+        <!-- Table View -->
+        <div id="employeesTable" class="employees-table-view hidden">
+          <table class="employees-data-table">
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Employee</th>
+                <th>Contact</th>
+                <th>Fines</th>
+                <th>Total Amount</th>
+                <th>Average Fine</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employeesTableBody">
+              <!-- Table rows will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let employees = [];
+      let employeeTotals = {};
+      let filteredEmployees = [];
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadEmployeesData();
+      });
+
+      async function loadEmployeesData() {
+        try {
+          // Load detailed employee data
+          const employeesRes = await fetch("/get_employees_detailed");
+          const employeesData = await employeesRes.json();
+          employees = employeesData.map((emp) => emp.name);
+
+          // Store detailed employee data
+          window.employeesDetailed = employeesData;
+
+          // Load employee totals
+          const totalsRes = await fetch("/get_employee_totals");
+          const totalsData = await totalsRes.json();
+
+          // Convert totals array to object for easier lookup
+          employeeTotals = {};
+          totalsData.forEach((emp) => {
+            employeeTotals[emp.employee] = emp;
+          });
+
+          updateStatistics();
+          filteredEmployees = [...employees];
+          renderEmployeesList();
+        } catch (error) {
+          console.error("Error loading employees:", error);
+        }
+      }
+
+      function previewImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("previewImg");
+        const overlay = document.querySelector(".upload-overlay span");
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            overlay.textContent = "📸 Change photo";
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function resetForm() {
+        document.getElementById("addEmployeeForm").reset();
+        document.getElementById("previewImg").src =
+          "/static/default-avatar.png";
+        document.querySelector(".upload-overlay span").textContent =
+          "📸 Click to upload photo";
+      }
+
+      function updateStatistics() {
+        const totalEmployees = employees.length;
+        const employeesWithFines = Object.keys(employeeTotals).length;
+        const avgFines =
+          employeesWithFines > 0
+            ? Object.values(employeeTotals).reduce(
+                (sum, emp) => sum + emp.fine_count,
+                0,
+              ) / employeesWithFines
+            : 0;
+
+        document.getElementById("totalEmployees").textContent = totalEmployees;
+        document.getElementById("employeesWithFines").textContent =
+          employeesWithFines;
+        document.getElementById("avgFinesPerEmployee").textContent =
+          avgFines.toFixed(1);
+      }
+
+      function renderEmployeesList() {
+        const container = document.getElementById("employeesList");
+        container.innerHTML = "";
+
+        if (filteredEmployees.length === 0) {
+          container.innerHTML =
+            '<p style="text-align: center; color: #7f8c8d; margin: 40px 0;">No employees found.</p>';
+          return;
+        }
+
+        filteredEmployees.forEach((employeeName) => {
+          const empData = employeeTotals[employeeName] || {
+            fine_count: 0,
+            total_amount: 0,
+            avg_amount: 0,
+            first_fine: "None",
+            last_fine: "None",
+          };
+
+          const empDetails =
+            window.employeesDetailed?.find(
+              (emp) => emp.name === employeeName,
+            ) || {};
+          const imagePath = empDetails.image_path
+            ? `/employee_image/${empDetails.image_path}`
+            : "/static/default-avatar.png";
+
+          const card = document.createElement("div");
+          card.className = "employee-card";
+          card.innerHTML = `
+          <div class="employee-info">
+            <div class="employee-header">
+              <div class="employee-avatar-container">
+                <img src="${imagePath}" alt="${employeeName}" class="employee-card-avatar" data-fancybox="employee-gallery" data-src="${imagePath}" title="${employeeName}" onerror="this.src='/static/default-avatar.png'">
+              </div>
+              <div class="employee-details">
+                <div class="employee-name">${employeeName}</div>
+                <div class="employee-meta">
+                  ${empDetails.department ? `<span class="employee-dept">${empDetails.department}</span>` : ""}
+                  ${empDetails.employee_id ? `<span class="employee-id">ID: ${empDetails.employee_id}</span>` : ""}
+                </div>
+                <div class="employee-contact">
+                  ${empDetails.phone ? `<span class="employee-phone">📞 ${empDetails.phone}</span>` : ""}
+                  ${empDetails.email ? `<span class="employee-email">📧 ${empDetails.email}</span>` : ""}
+                </div>
+                <div class="employee-stats">
+                  <span class="stat-item">Fines: <strong>${empData.fine_count}</strong></span>
+                  <span class="stat-item">Total: <strong>₨${empData.total_amount}</strong></span>
+                  <span class="stat-item">Avg: <strong>₨${empData.avg_amount}</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="employee-actions">
+              <button class="action-btn edit-btn" onclick="editEmployee(${empDetails.id || 0})">
+                <span class="btn-icon">✏️</span> Edit
+              </button>
+              <button class="action-btn delete-btn" onclick="deleteEmployee('${employeeName}')">
+                <span class="btn-icon">🗑️</span> Delete
+              </button>
+            </div>
+          </div>
+          <div class="edit-form hidden" id="edit-form-${empDetails.id || 0}">
+            <form id="edit-employee-form-${empDetails.id || 0}" enctype="multipart/form-data">
+              <div class="edit-form-grid">
+                <div class="edit-image-section">
+                  <label>Employee Photo:</label>
+                  <div class="edit-employee-image-container">
+                    <img id="edit-image-preview-${empDetails.id || 0}" src="${imagePath}" alt="Current photo" class="edit-employee-image-preview" data-fancybox="employee-edit-gallery" data-src="${imagePath}" title="Employee Photo" onerror="this.src='/static/default-avatar.png'">
+                    <input type="file" id="edit-image-${empDetails.id || 0}" name="image" accept="image/*" onchange="previewEditEmployeeImage(${empDetails.id || 0}, event)">
+                    <input type="hidden" name="current_image" value="${empDetails.image_path || ""}">
+                    <div class="edit-image-overlay">
+                      <span>📸 Change Photo</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="edit-fields-section">
+                  <div class="edit-field">
+                    <label>Name:</label>
+                    <input type="text" id="edit-name-${empDetails.id || 0}" name="name" value="${employeeName}">
+                  </div>
+                  <div class="edit-field">
+                    <label>Employee ID:</label>
+                    <input type="text" id="edit-employee-id-${empDetails.id || 0}" name="employee_id" value="${empDetails.employee_id || ""}">
+                  </div>
+                  <div class="edit-field">
+                    <label>Department:</label>
+                    <input type="text" id="edit-department-${empDetails.id || 0}" name="department" value="${empDetails.department || ""}">
+                  </div>
+                  <div class="edit-field">
+                    <label>Phone:</label>
+                    <input type="tel" id="edit-phone-${empDetails.id || 0}" name="phone" value="${empDetails.phone || ""}">
+                  </div>
+                  <div class="edit-field">
+                    <label>Email:</label>
+                    <input type="email" id="edit-email-${empDetails.id || 0}" name="email" value="${empDetails.email || ""}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="action-btn save-btn" onclick="saveEmployeeEdit(${empDetails.id || 0})">
+                  <span class="btn-icon">💾</span> Save Changes
+                </button>
+                <button type="button" class="action-btn cancel-btn" onclick="cancelEmployeeEdit(${empDetails.id || 0})">
+                  <span class="btn-icon">❌</span> Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+          container.appendChild(card);
+        });
+
+        // Rebind fancybox after adding new content
+        setTimeout(rebindFancybox, 100);
+      }
+
+      function filterEmployees() {
+        const searchTerm = document
+          .getElementById("searchEmployee")
+          .value.toLowerCase();
+        filteredEmployees = employees.filter((emp) =>
+          emp.toLowerCase().includes(searchTerm),
+        );
+        sortEmployeeList();
+      }
+
+      function sortEmployeeList() {
+        const sortBy = document.getElementById("sortEmployees").value;
+
+        filteredEmployees.sort((a, b) => {
+          const aData = employeeTotals[a] || { fine_count: 0, total_amount: 0 };
+          const bData = employeeTotals[b] || { fine_count: 0, total_amount: 0 };
+
+          switch (sortBy) {
+            case "name":
+              return a.localeCompare(b);
+            case "name-desc":
+              return b.localeCompare(a);
+            case "fines-desc":
+              return bData.fine_count - aData.fine_count;
+            case "fines-asc":
+              return aData.fine_count - bData.fine_count;
+            case "amount-desc":
+              return bData.total_amount - aData.total_amount;
+            case "amount-asc":
+              return aData.total_amount - bData.total_amount;
+            default:
+              return 0;
+          }
+        });
+
+        renderEmployeesList();
+      }
+
+      async function addNewEmployee() {
+        const name = document.getElementById("newEmployeeName").value.trim();
+        if (!name) {
+          alert("Please enter a name.");
+          return;
+        }
+
+        try {
+          const res = await fetch("/add_employee", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: name }),
+          });
+
+          const result = await res.json();
+          if (result.status === "success") {
+            alert("Employee added successfully!");
+            document.getElementById("newEmployeeName").value = "";
+            document.getElementById("newEmployeeId").value = "";
+            document.getElementById("newEmployeeDept").value = "";
+            loadEmployeesData();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error adding employee:", error);
+          alert("Error adding employee.");
+        }
+      }
+
+      function editEmployee(employeeName, button) {
+        const editForm = document.getElementById(
+          `edit-${employeeName.replace(/\s+/g, "")}`,
+        );
+        editForm.classList.toggle("hidden");
+
+        if (editForm.classList.contains("hidden")) {
+          button.textContent = "Edit";
+        } else {
+          button.textContent = "Cancel";
+        }
+      }
+
+      async function saveEmployeeEdit(oldName) {
+        const newName = document
+          .getElementById(`newName-${oldName.replace(/\s+/g, "")}`)
+          .value.trim();
+        if (!newName || newName === oldName) {
+          cancelEmployeeEdit(oldName);
+          return;
+        }
+
+        // Since we don't have an update endpoint, we'll need to delete and re-add
+        // This is a limitation of the current backend
+        alert(
+          "Employee editing requires backend support for updating names. For now, please delete and re-add the employee with the new name.",
+        );
+        cancelEmployeeEdit(oldName);
+      }
+
+      function cancelEmployeeEdit(employeeName) {
+        const editForm = document.getElementById(
+          `edit-${employeeName.replace(/\s+/g, "")}`,
+        );
+        editForm.classList.add("hidden");
+
+        // Reset button text
+        const button = editForm.parentElement.querySelector(".edit-btn");
+        button.textContent = "Edit";
+      }
+
+      async function deleteEmployee(name) {
+        if (
+          !confirm(
+            `Delete employee "${name}"? This will permanently remove them from the system.`,
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/delete_employee/${encodeURIComponent(name)}`,
+            {
+              method: "DELETE",
+            },
+          );
+
+          const result = await res.json();
+          if (result.status === "success") {
+            alert("Employee deleted successfully.");
+            loadEmployeesData();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error deleting employee:", error);
+          alert("Error deleting employee.");
+        }
+      }
+
+      function previewEditEmployeeImage(employeeId, event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById(
+          `edit-image-preview-${employeeId}`,
+        );
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function toggleViewMode() {
+        const viewMode = document.getElementById("viewMode").value;
+        const cardsView = document.getElementById("employeesList");
+        const tableView = document.getElementById("employeesTable");
+
+        if (viewMode === "table") {
+          cardsView.classList.add("hidden");
+          tableView.classList.remove("hidden");
+          renderEmployeesTable();
+        } else {
+          cardsView.classList.remove("hidden");
+          tableView.classList.add("hidden");
+        }
+      }
+
+      function renderEmployeesTable() {
+        const tableBody = document.getElementById("employeesTableBody");
+        tableBody.innerHTML = "";
+
+        filteredEmployees.forEach((employeeName) => {
+          const empData = employeeTotals[employeeName] || {
+            fine_count: 0,
+            total_amount: 0,
+            avg_amount: 0,
+            first_fine: "None",
+            last_fine: "None",
+          };
+
+          const empDetails =
+            window.employeesDetailed?.find(
+              (emp) => emp.name === employeeName,
+            ) || {};
+          const imagePath = empDetails.image_path
+            ? `/employee_image/${empDetails.image_path}`
+            : "/static/default-avatar.png";
+
+          const row = tableBody.insertRow();
+
+          // Photo cell
+          const photoCell = row.insertCell(0);
+          photoCell.innerHTML = `<img src="${imagePath}" alt="${employeeName}" class="table-employee-avatar" data-fancybox="employee-table-gallery" data-src="${imagePath}" title="${employeeName}" onerror="this.src='/static/default-avatar.png'">`;
+
+          // Employee cell
+          const employeeCell = row.insertCell(1);
+          employeeCell.innerHTML = `
+            <div class="table-employee-cell">
+              <div class="table-employee-info">
+                <div class="table-employee-name">${employeeName}</div>
+                <div class="table-employee-meta">
+                  ${empDetails.department ? `${empDetails.department}` : "No Department"}
+                  ${empDetails.employee_id ? ` • ID: ${empDetails.employee_id}` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Contact cell
+          const contactCell = row.insertCell(2);
+          contactCell.innerHTML = `
+            <div class="table-contact-info">
+              ${empDetails.phone ? `<div>📞 ${empDetails.phone}</div>` : ""}
+              ${empDetails.email ? `<div>✉️ ${empDetails.email}</div>` : ""}
+              ${!empDetails.phone && !empDetails.email ? '<div style="color: #bdc3c7;">No contact info</div>' : ""}
+            </div>
+          `;
+
+          // Fines cell
+          const finesCell = row.insertCell(3);
+          finesCell.innerHTML = `
+            <div class="table-stats">
+              <div class="table-stats-value">${empData.fine_count}</div>
+              <div class="table-stats-label">Fines</div>
+            </div>
+          `;
+
+          // Total amount cell
+          const totalCell = row.insertCell(4);
+          totalCell.innerHTML = `
+            <div class="table-stats">
+              <div class="table-stats-value">₨${empData.total_amount}</div>
+              <div class="table-stats-label">Total</div>
+            </div>
+          `;
+
+          // Average cell
+          const avgCell = row.insertCell(5);
+          avgCell.innerHTML = `
+            <div class="table-stats">
+              <div class="table-stats-value">₨${empData.avg_amount}</div>
+              <div class="table-stats-label">Average</div>
+            </div>
+          `;
+
+          // Actions cell
+          const actionsCell = row.insertCell(6);
+          actionsCell.innerHTML = `
+            <div style="display: flex; gap: 8px;">
+              <button class="action-btn edit-btn" onclick="editEmployee(${empDetails.id || 0})" title="Edit Employee">
+                <span class="btn-icon">✏️</span>
+              </button>
+              <button class="action-btn delete-btn" onclick="deleteEmployee('${employeeName}')" title="Delete Employee">
+                <span class="btn-icon">🗑️</span>
+              </button>
+            </div>
+          `;
+        });
+      }
+
+      function editEmployee(employeeId) {
+        const editForm = document.getElementById(`edit-form-${employeeId}`);
+        const isEditing = editForm.classList.contains("active");
+
+        // Close all other edit forms
+        document.querySelectorAll(".edit-form.active").forEach((form) => {
+          form.classList.remove("active");
+        });
+
+        if (!isEditing) {
+          editForm.classList.add("active");
+        }
+      }
+
+      async function saveEmployeeEdit(employeeId) {
+        const form = document.getElementById(
+          `edit-employee-form-${employeeId}`,
+        );
+        const formData = new FormData(form);
+
+        const name = formData.get("name").trim();
+        if (!name) {
+          alert("Please enter a name.");
+          return;
+        }
+
+        try {
+          const response = await fetch(`/update_employee/${employeeId}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.status === "success") {
+            alert("Employee updated successfully!");
+            cancelEmployeeEdit(employeeId);
+            loadEmployeesData();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error updating employee:", error);
+          alert("Error updating employee");
+        }
+      }
+
+      function cancelEmployeeEdit(employeeId) {
+        const editForm = document.getElementById(`edit-form-${employeeId}`);
+        editForm.classList.remove("active");
+
+        // Reset form values
+        const employee = window.employeesDetailed?.find(
+          (emp) => emp.id === employeeId,
+        );
+        if (employee) {
+          document.getElementById(`edit-name-${employeeId}`).value =
+            employee.name;
+          document.getElementById(`edit-employee-id-${employeeId}`).value =
+            employee.employee_id || "";
+          document.getElementById(`edit-department-${employeeId}`).value =
+            employee.department || "";
+          document.getElementById(`edit-phone-${employeeId}`).value =
+            employee.phone || "";
+          document.getElementById(`edit-email-${employeeId}`).value =
+            employee.email || "";
+
+          // Reset image preview
+          const imageSrc = employee.image_path
+            ? `/employee_image/${employee.image_path}`
+            : "/static/default-avatar.png";
+          document.getElementById(`edit-image-preview-${employeeId}`).src =
+            imageSrc;
+          document.getElementById(`edit-image-${employeeId}`).value = "";
+        }
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script>
+      // Initialize fancybox when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof Fancybox !== "undefined") {
+          Fancybox.bind("[data-fancybox]", {
+            loop: false,
+            keyboard: false,
+            toolbar: {
+              display: {
+                left: ["infobar"],
+                middle: [],
+                right: ["close"],
+              },
+            },
+            Images: {
+              zoom: false,
+            },
+            Thumbs: {
+              showOnStart: false,
+            },
+          });
+        }
+      });
+
+      // Rebind fancybox after dynamic content updates
+      function rebindFancybox() {
+        if (typeof Fancybox !== "undefined") {
+          Fancybox.destroy();
+          Fancybox.bind("[data-fancybox]", {
+            loop: false,
+            keyboard: false,
+            toolbar: {
+              display: {
+                left: ["infobar"],
+                middle: [],
+                right: ["close"],
+              },
+            },
+            Images: {
+              zoom: false,
+            },
+            Thumbs: {
+              showOnStart: false,
+            },
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diagnostic - Fine Tracker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .diagnostic-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+      button {
+        padding: 8px 16px;
+        margin: 5px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: #007bff;
+        color: white;
+      }
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fine Tracker - Diagnostic Page</h1>
+    <p>
+      This page helps diagnose why select boxes might be empty in the fine form.
+    </p>
+
+    <div class="diagnostic-section">
+      <h3>Quick Actions</h3>
+      <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+      <button class="btn-success" onclick="reinitializeDatabase()">
+        Reinitialize Database
+      </button>
+      <button class="btn-primary" onclick="window.location.href='/'">
+        Back to Main Page
+      </button>
+    </div>
+
+    <div class="diagnostic-section" id="databaseStatus">
+      <h3>Database Status</h3>
+      <p>Checking database...</p>
+    </div>
+
+    <div class="diagnostic-section" id="employeeStatus">
+      <h3>Employee Data</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div class="diagnostic-section" id="violationStatus">
+      <h3>Violation Type Data</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div class="diagnostic-section" id="apiStatus">
+      <h3>API Endpoints Test</h3>
+      <p>Testing...</p>
+    </div>
+
+    <div class="diagnostic-section" id="jsStatus">
+      <h3>JavaScript Test</h3>
+      <p>Testing select box population...</p>
+      <div>
+        <label>Test Employee Select:</label>
+        <select id="testEmployee">
+          <option>Loading...</option>
+        </select>
+      </div>
+      <div style="margin-top: 10px">
+        <label>Test Violation Select:</label>
+        <select id="testViolation">
+          <option>Loading...</option>
+        </select>
+      </div>
+    </div>
+
+    <script>
+      // Run all diagnostic tests
+      async function runAllTests() {
+        await checkDatabase();
+        await testEmployeeAPI();
+        await testViolationAPI();
+        await testJavaScript();
+      }
+
+      // Check database status
+      async function checkDatabase() {
+        const section = document.getElementById("databaseStatus");
+        try {
+          const response = await fetch("/check_data");
+          const data = await response.json();
+
+          let html = "<h3>Database Status</h3>";
+          if (data.status === "ok") {
+            html += '<div class="success">';
+            html += "<strong>✓ Database OK</strong><br>";
+            html += `Employees: ${data.employees}<br>`;
+            html += `Violation Types: ${data.violation_types}`;
+            html += "</div>";
+          } else {
+            html += '<div class="error">';
+            html += "<strong>✗ Database Issues</strong><br>";
+            html += `Employees: ${data.employees}<br>`;
+            html += `Violation Types: ${data.violation_types}<br>`;
+            html += "Some data is missing. Try reinitializing the database.";
+            html += "</div>";
+          }
+          section.innerHTML = html;
+        } catch (error) {
+          section.innerHTML =
+            '<h3>Database Status</h3><div class="error">Error: ' +
+            error.message +
+            "</div>";
+        }
+      }
+
+      // Test employee API
+      async function testEmployeeAPI() {
+        const section = document.getElementById("employeeStatus");
+        try {
+          const response = await fetch("/get_employees_detailed");
+          const data = await response.json();
+
+          let html = "<h3>Employee Data</h3>";
+          if (data && data.length > 0) {
+            html += '<div class="success">';
+            html += `<strong>✓ Found ${data.length} employees</strong><br>`;
+            html += "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+            html += "</div>";
+          } else {
+            html += '<div class="warning">';
+            html += "<strong>⚠ No employees found</strong><br>";
+            html += "Response: <pre>" + JSON.stringify(data) + "</pre>";
+            html += "</div>";
+          }
+          section.innerHTML = html;
+        } catch (error) {
+          section.innerHTML =
+            '<h3>Employee Data</h3><div class="error">Error: ' +
+            error.message +
+            "</div>";
+        }
+      }
+
+      // Test violation API
+      async function testViolationAPI() {
+        const section = document.getElementById("violationStatus");
+        try {
+          const response = await fetch("/get_violation_types");
+          const data = await response.json();
+
+          let html = "<h3>Violation Type Data</h3>";
+          if (data && data.length > 0) {
+            html += '<div class="success">';
+            html += `<strong>✓ Found ${data.length} violation types</strong><br>`;
+            html +=
+              "<pre>" + JSON.stringify(data.slice(0, 3), null, 2) + "</pre>";
+            if (data.length > 3)
+              html += `<p>... and ${data.length - 3} more</p>`;
+            html += "</div>";
+          } else {
+            html += '<div class="warning">';
+            html += "<strong>⚠ No violation types found</strong><br>";
+            html += "Response: <pre>" + JSON.stringify(data) + "</pre>";
+            html += "</div>";
+          }
+          section.innerHTML = html;
+        } catch (error) {
+          section.innerHTML =
+            '<h3>Violation Type Data</h3><div class="error">Error: ' +
+            error.message +
+            "</div>";
+        }
+      }
+
+      // Test JavaScript select population
+      async function testJavaScript() {
+        const section = document.getElementById("jsStatus");
+
+        try {
+          // Test employee population
+          const empResponse = await fetch("/get_employees_detailed");
+          const empData = await empResponse.json();
+          const empSelect = document.getElementById("testEmployee");
+
+          empSelect.innerHTML =
+            '<option value="">-- Choose Employee --</option>';
+          if (empData && empData.length > 0) {
+            empData.forEach((emp) => {
+              const option = document.createElement("option");
+              option.value = emp.name;
+              option.textContent = emp.name;
+              empSelect.appendChild(option);
+            });
+          }
+
+          // Test violation population
+          const volResponse = await fetch("/get_violation_types");
+          const volData = await volResponse.json();
+          const volSelect = document.getElementById("testViolation");
+
+          volSelect.innerHTML = '<option value="">-- Select Type --</option>';
+          if (volData && volData.length > 0) {
+            volData.forEach((viol) => {
+              const option = document.createElement("option");
+              option.value = viol.id;
+              option.textContent = viol.name;
+              volSelect.appendChild(option);
+            });
+          }
+
+          let html = "<h3>JavaScript Test</h3>";
+          html += '<div class="success">';
+          html += "<strong>✓ JavaScript population working</strong><br>";
+          html += "Select boxes above should now be populated if data exists.";
+          html += "</div>";
+          html += '<div style="margin-top: 10px;">';
+          html += "<label>Test Employee Select:</label>";
+          html +=
+            '<select id="testEmployee">' + empSelect.innerHTML + "</select>";
+          html += "</div>";
+          html += '<div style="margin-top: 10px;">';
+          html += "<label>Test Violation Select:</label>";
+          html +=
+            '<select id="testViolation">' + volSelect.innerHTML + "</select>";
+          html += "</div>";
+
+          section.innerHTML = html;
+        } catch (error) {
+          section.innerHTML =
+            '<h3>JavaScript Test</h3><div class="error">Error: ' +
+            error.message +
+            "</div>";
+        }
+      }
+
+      // Reinitialize database
+      async function reinitializeDatabase() {
+        if (
+          !confirm(
+            "This will reinitialize the database with default data. Continue?",
+          )
+        )
+          return;
+
+        try {
+          const response = await fetch("/reinitialize_db", { method: "POST" });
+          const result = await response.json();
+
+          if (result.status === "success") {
+            alert("Database reinitialized successfully!");
+            location.reload();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          alert("Error reinitializing database: " + error.message);
+        }
+      }
+
+      // Run tests on page load
+      document.addEventListener("DOMContentLoaded", runAllTests);
+    </script>
+  </body>
+</html>

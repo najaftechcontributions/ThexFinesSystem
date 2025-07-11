@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ThexSol Fine Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Office Fine Tracker</h2>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <div class="user-actions">
+          {% if is_admin %}
+          <a href="/logout" class="action-link">Logout</a>
+          {% else %}
+          <a href="/login" class="action-link">Login as Admin</a>
+          {% endif %}
+        </div>
+        <div class="report-actions">
+          <a href="/manage_employees" class="action-link">👥 Employees</a>
+          <a href="/manage_violations" class="action-link">⚠️ Violations</a>
+          {% if is_admin %}
+          <a href="/admin_settings" class="action-link">⚙️ Settings</a>
+          {% endif %}
+          <a href="/generate_report" class="report-btn" target="_blank"
+            >📊 Generate Report</a
+          >
+        </div>
+      </div>
+
+      <!-- Enhanced Fine Submission Section -->
+      {% if is_admin %}
+      <div class="section fine-submission-section" id="submitFineSection">
+        <div class="section-header">
+          <h3>💰 Issue a Fine</h3>
+          <p class="section-subtitle">
+            Select an employee and violation type with visual confirmation
+          </p>
+        </div>
+
+        <div class="fine-form-container">
+          <!-- Employee Selection with Images -->
+          <div class="employee-selection">
+            <label for="employee">Select Employee:</label>
+            <div class="employee-dropdown-container">
+              <select id="employee" onchange="updateEmployeePreview()">
+                <option value="">-- Choose Employee --</option>
+              </select>
+              <div class="selected-employee-preview" id="employeePreview">
+                <img
+                  id="previewEmployeeImage"
+                  src="/static/default-avatar.png"
+                  alt="Employee"
+                  class="employee-avatar"
+                  data-fancybox="employee-preview"
+                  data-src="/static/default-avatar.png"
+                  title="Employee Preview"
+                />
+                <div class="employee-info">
+                  <span id="previewName">No employee selected</span>
+                  <span id="previewDept" class="employee-details"
+                    >Department • ID</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Violation Selection with Images -->
+          <div class="violation-selection">
+            <label for="violationType">Violation Type:</label>
+            <div class="violation-dropdown-container">
+              <select id="violationType" onchange="updateViolationPreview()">
+                <option value="">-- Select Type --</option>
+              </select>
+              <div class="selected-violation-preview" id="violationPreview">
+                <div class="violation-info">
+                  <span id="previewViolationType">No violation selected</span>
+                  <span id="previewSeverity" class="violation-details"
+                    >Severity Level</span
+                  >
+                  <span id="previewDefaultAmount" class="violation-amount"
+                    >₨0.00</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fine Details Form -->
+        <div class="fine-details-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="amount">Fine Amount (PKR):</label>
+              <div class="amount-input-container">
+                <span class="currency-symbol">₨</span>
+                <input
+                  type="number"
+                  id="amount"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                />
+                <div class="amount-suggestions">
+                  <button
+                    type="button"
+                    class="amount-btn"
+                    onclick="setAmount(100)"
+                  >
+                    ₨100
+                  </button>
+                  <button
+                    type="button"
+                    class="amount-btn"
+                    onclick="setAmount(250)"
+                  >
+                    ₨250
+                  </button>
+                  <button
+                    type="button"
+                    class="amount-btn"
+                    onclick="setAmount(500)"
+                  >
+                    ₨500
+                  </button>
+                  <button
+                    type="button"
+                    class="amount-btn"
+                    onclick="setAmount(1000)"
+                  >
+                    ₨1000
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="evidenceImages">Evidence Images (Optional):</label>
+              <div class="evidence-upload">
+                <input
+                  type="file"
+                  id="evidenceImages"
+                  multiple
+                  accept="image/*"
+                  onchange="previewEvidenceImages(event)"
+                />
+                <div class="evidence-previews" id="evidencePreviews"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reason">Violation Details:</label>
+            <textarea
+              id="reason"
+              placeholder="Describe the violation..."
+              rows="3"
+            ></textarea>
+            <div class="reason-suggestions" id="reasonSuggestions">
+              <!-- Dynamic suggestions will be populated here -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Additional Notes (Optional):</label>
+            <textarea
+              id="notes"
+              placeholder="Any additional comments..."
+              rows="2"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button onclick="generateReceipt()" class="submit-btn">
+              <span class="btn-icon">📋</span>
+              Issue Fine & Generate Receipt
+            </button>
+            <button onclick="clearForm()" class="reset-btn" type="button">
+              <span class="btn-icon">🗑️</span>
+              Clear Form
+            </button>
+          </div>
+        </div>
+
+        <!-- Enhanced Receipt Display -->
+        <div class="receipt-container hidden" id="receipt">
+          <div class="receipt-header">
+            <h4>🧾 Fine Receipt Generated</h4>
+            <div class="receipt-parties">
+              <div class="receipt-employee-info">
+                <img
+                  id="receiptEmployeeImage"
+                  src="/static/default-avatar.png"
+                  alt="Employee"
+                  class="receipt-avatar"
+                  data-fancybox="receipt-gallery"
+                  data-src="/static/default-avatar.png"
+                  title="Employee"
+                />
+                <div class="receipt-employee-details">
+                  <strong id="rEmployee"></strong>
+                  <span id="rEmployeeDept"></span>
+                  <span id="rEmployeeId"></span>
+                </div>
+              </div>
+              <div class="receipt-violation-info">
+                <img
+                  id="receiptViolationImage"
+                  src="/static/default-violation.png"
+                  alt="Violation"
+                  class="receipt-avatar"
+                  data-fancybox="receipt-gallery"
+                  data-src="/static/default-violation.png"
+                  title="Violation Type"
+                />
+                <div class="receipt-violation-details">
+                  <strong id="rViolationType"></strong>
+                  <span id="rViolationSeverity"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-details">
+            <div class="receipt-row">
+              <span class="label">Details:</span>
+              <span id="rReason"></span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Amount:</span>
+              <span class="amount">₨<span id="rAmount"></span></span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Date & Time:</span>
+              <span id="rDate"></span>
+            </div>
+            <div class="receipt-row" id="rNotesRow" style="display: none">
+              <span class="label">Notes:</span>
+              <span id="rNotes"></span>
+            </div>
+          </div>
+
+          <div class="receipt-actions">
+            <button class="print-btn primary" onclick="printFullReceipt()">
+              <span class="btn-icon">🖨️</span>
+              Print Official Receipt
+            </button>
+            <button class="print-btn secondary" onclick="printQuickReceipt()">
+              <span class="btn-icon">📄</span>
+              Quick Print
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Advanced Filtering and Fine Records -->
+      <div class="section">
+        <h3>📋 Fine Records</h3>
+
+        <!-- Filtering Panel -->
+        <div class="filtering-panel">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="filterSelect">Filter by Employee:</label>
+              <select id="filterSelect" onchange="applyFilters()">
+                <option value="">-- Show All --</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="sortSelect">Sort by:</label>
+              <select id="sortSelect" onchange="applyFilters()">
+                <option value="date-desc">Date (Newest First)</option>
+                <option value="date-asc">Date (Oldest First)</option>
+                <option value="amount-desc">Amount (High to Low)</option>
+                <option value="amount-asc">Amount (Low to High)</option>
+                <option value="employee">Employee Name</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="minAmount">Min Amount:</label>
+              <input
+                type="number"
+                id="minAmount"
+                placeholder="0.00"
+                step="0.01"
+                onchange="applyFilters()"
+              />
+            </div>
+            <div class="filter-group">
+              <label for="maxAmount">Max Amount:</label>
+              <input
+                type="number"
+                id="maxAmount"
+                placeholder="999.99"
+                step="0.01"
+                onchange="applyFilters()"
+              />
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button onclick="resetFilters()" class="reset-btn">
+              Reset Filters
+            </button>
+            <button
+              onclick="toggleEmployeeTotals()"
+              class="totals-btn"
+              id="totalsToggle"
+            >
+              Show Employee Totals
+            </button>
+          </div>
+        </div>
+
+        <!-- Employee Totals Summary -->
+        <div id="employeeTotalsSection" class="employee-totals hidden">
+          <h4>Employee Fine Totals</h4>
+          <table id="employeeTotalsTable">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Total Fines</th>
+                <th>Fine Count</th>
+                <th>Average Fine</th>
+                <th>First Fine</th>
+                <th>Last Fine</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- Main Fine Records Table -->
+        <table id="fineTable" class="enhanced-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Violation</th>
+              <th>Reason</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="summary-info">
+          <div class="total-display">
+            <strong
+              >Filtered Total: ₨<span id="filteredTotal">0.00</span></strong
+            >
+            <span class="record-count"
+              >(<span id="recordCount">0</span> records)</span
+            >
+          </div>
+          <div class="grand-total">
+            <strong>Grand Total: ₨<span id="grandTotal">0.00</span></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="/static/enhanced-app.js"></script>
+  </body>
+</html>
