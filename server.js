@@ -35,6 +35,22 @@ app.use(
   }),
 );
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("❌ Server Error:", err);
+  res.status(500).json({
+    error: "Internal server error",
+    message: err.message,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Initialize database tables
 function initializeDatabase() {
   console.log("🗄️ Initializing SQLite database...");
@@ -160,18 +176,32 @@ function allQuery(sql, params = []) {
   }
 }
 
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    database: "Connected",
+    message: "Fine Tracker Backend is running!",
+  });
+});
+
 // Auth Routes
 app.post("/api/auth/login", async (req, res) => {
   try {
+    console.log("🔐 Login attempt:", req.body?.username);
     const { username, password } = req.body;
 
     if (username === "admin" && password === "admin123") {
       req.session.user = { username: "admin", isAdmin: true };
+      console.log("✅ Login successful for:", username);
       res.json({ success: true, user: { username: "admin", isAdmin: true } });
     } else {
+      console.log("❌ Login failed for:", username);
       res.status(401).json({ error: "Invalid credentials" });
     }
   } catch (error) {
+    console.error("❌ Login error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -682,12 +712,28 @@ app.post("/api/fines/:id/email-receipt", async (req, res) => {
 });
 
 // Initialize database and start server
-initializeDatabase();
+try {
+  initializeDatabase();
+  console.log("✅ Database initialization completed");
+
+  // Test database connection
+  const testQuery = getQuery(
+    "SELECT COUNT(*) as count FROM sqlite_master WHERE type='table'",
+  );
+  console.log(`📊 Database tables found: ${testQuery.count}`);
+} catch (error) {
+  console.error("❌ Database initialization failed:", error);
+  process.exit(1);
+}
 
 app.listen(PORT, () => {
-  console.log(`🚀 Fine Tracker Backend Server running on port ${PORT}`);
+  console.log("=".repeat(60));
+  console.log(`🚀 Fine Tracker Backend Server STARTED`);
   console.log(`📁 SQLite database: ${DB_PATH}`);
-  console.log(`🔗 Frontend should connect to: http://localhost:${PORT}`);
+  console.log(`🌐 Server running on: http://localhost:${PORT}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`💡 Frontend should proxy to: http://localhost:${PORT}`);
+  console.log("=".repeat(60));
 });
 
 // Graceful shutdown
