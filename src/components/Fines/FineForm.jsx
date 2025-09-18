@@ -217,7 +217,7 @@ function FineForm({ employees, violationTypes, onSubmit }) {
           <div className="relative">
             <DollarSign
               size={20}
-              className="absolute left-3 top-1/2  translate-top text-gray-400"
+              className="absolute left-3 translate-top text-gray-400"
             />
             <input
               type="number"
@@ -267,25 +267,34 @@ function FineForm({ employees, violationTypes, onSubmit }) {
         />
 
         {/* Suggestions */}
-        {selectedViolation &&
-          selectedViolation.suggestions &&
-          selectedViolation.suggestions.length > 0 && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600 mb-2">Quick suggestions:</p>
-              <div className="flex flex-wrap gap-2">
-                {selectedViolation.suggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="btn btn-sm btn-secondary text-xs"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+        {selectedViolation && (() => {
+          try {
+            const suggestions = typeof selectedViolation.suggestions === 'string'
+              ? JSON.parse(selectedViolation.suggestions || '[]')
+              : selectedViolation.suggestions || [];
+
+            return suggestions.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-600 mb-2">Quick suggestions:</p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="btn btn-sm btn-secondary text-xs"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          } catch (e) {
+            console.warn('Error parsing suggestions:', e);
+            return null;
+          }
+        })()}
       </div>
 
       {/* Additional Notes */}

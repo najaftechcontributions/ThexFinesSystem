@@ -23,6 +23,7 @@ function Dashboard() {
   const [showEmployeeTotals, setShowEmployeeTotals] = useState(false);
   const [filteredFines, setFilteredFines] = useState([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [isRecordsOpen, setIsRecordsOpen] = useState(true);
 
   useEffect(() => {
     loadData();
@@ -234,50 +235,71 @@ function Dashboard() {
 
       {/* Fine Records Section */}
       <section className="card">
-        <div className="card-header">
-          <h3 className="text-xl font-semibold">📋 Fine Records</h3>
+        <div
+          className="card-header cursor-pointer"
+          onClick={() => setIsRecordsOpen(!isRecordsOpen)}
+        >
+          <div>
+            <h3 className="text-xl font-semibold">📋 Fine Records</h3>
+            <p className="text-gray-600 mt-1">
+              View and manage all fine records with filtering options
+            </p>
+          </div>
+          <div className="flex items-center text-gray-500">
+            {isRecordsOpen ? (
+              <ChevronUp size={20} className="transition-transform duration-200" />
+            ) : (
+              <ChevronDown size={20} className="transition-transform duration-200" />
+            )}
+          </div>
         </div>
 
-        {/* Filters */}
-        <FinesFilters
-          filters={filters}
-          employees={employees}
-          violationTypes={violationTypes}
-          onFilterChange={handleFilterChange}
-          onReset={resetFilters}
-          showEmployeeTotals={showEmployeeTotals}
-          onToggleEmployeeTotals={() =>
-            setShowEmployeeTotals(!showEmployeeTotals)
-          }
-        />
-
-        {/* Employee Totals */}
-        {showEmployeeTotals && (
-          <EmployeeTotals
+        <div
+          className={`accordion-content ${
+            isRecordsOpen ? 'accordion-open' : 'accordion-closed'
+          }`}
+        >
+          {/* Filters */}
+          <FinesFilters
+            filters={filters}
             employees={employees}
-            onFilterByEmployee={(employeeId) => handleFilterChange({ employeeId })}
+            violationTypes={violationTypes}
+            onFilterChange={handleFilterChange}
+            onReset={resetFilters}
+            showEmployeeTotals={showEmployeeTotals}
+            onToggleEmployeeTotals={() =>
+              setShowEmployeeTotals(!showEmployeeTotals)
+            }
           />
-        )}
 
-        {/* Fines Table */}
-        <FinesTable
-          fines={filteredFines}
-          employees={employees}
-          violationTypes={violationTypes}
-          isAuthenticated={isAuthenticated}
-          onUpdate={loadData}
-        />
+          {/* Employee Totals */}
+          {showEmployeeTotals && (
+            <EmployeeTotals
+              employees={employees}
+              onFilterByEmployee={(employeeId) => handleFilterChange({ employeeId })}
+            />
+          )}
 
-        {/* Summary */}
-        <div className="flex justify-between items-center mt-6 p-4 bg-gray-50 rounded-lg">
-          <div>
-            <strong className="text-lg">
-              Filtered Total: ₨{totals.filtered}
-            </strong>
-            <span className="text-gray-600 ml-2">({totals.count} records)</span>
-          </div>
-          <div>
-            <strong className="text-lg">Grand Total: ₨{totals.grand}</strong>
+          {/* Fines Table */}
+          <FinesTable
+            fines={filteredFines}
+            employees={employees}
+            violationTypes={violationTypes}
+            isAuthenticated={isAuthenticated}
+            onUpdate={loadData}
+          />
+
+          {/* Summary */}
+          <div className="flex justify-between items-center mt-6 p-4 bg-gray-50 rounded-lg">
+            <div>
+              <strong className="text-lg">
+                Filtered Total: ₨{totals.filtered}
+              </strong>
+              <span className="text-gray-600 ml-2">({totals.count} records)</span>
+            </div>
+            <div>
+              <strong className="text-lg">Grand Total: ₨{totals.grand}</strong>
+            </div>
           </div>
         </div>
       </section>
