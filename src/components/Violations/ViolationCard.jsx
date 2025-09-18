@@ -71,7 +71,7 @@ function ViolationCard({ violation, isAuthenticated, onEdit, onDelete }) {
         </div>
 
         {/* Suggestions */}
-        {violation.suggestions && violation.suggestions.length > 0 && (
+        {Array.isArray(violation.suggestions) && violation.suggestions.length > 0 && (
           <div>
             <span className="text-sm text-gray-600">Common Examples:</span>
             <div className="mt-1 flex flex-wrap gap-1">

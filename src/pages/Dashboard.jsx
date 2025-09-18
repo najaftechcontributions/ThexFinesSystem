@@ -6,6 +6,7 @@ import FinesTable from "../components/Fines/FinesTable";
 import FinesFilters from "../components/Fines/FinesFilters";
 import EmployeeTotals from "../components/Fines/EmployeeTotals";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import toast from "react-hot-toast";
 
 function Dashboard() {
@@ -21,38 +22,33 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [showEmployeeTotals, setShowEmployeeTotals] = useState(false);
   const [filteredFines, setFilteredFines] = useState([]);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [fines, filters]);
+    loadFines();
+  }, [filters]);
 
   const loadData = async () => {
     try {
       setIsLoading(true);
 
-      const [employeesRes, violationTypesRes, finesRes] = await Promise.all([
+      const [employeesRes, violationTypesRes] = await Promise.all([
         employeesAPI.getAll(),
         violationTypesAPI.getAll(),
-        finesAPI.getAll(),
       ]);
-
-      console.log("📊 Dashboard data loaded:", {
-        employees: employeesRes.data?.length,
-        violationTypes: violationTypesRes.data?.length,
-        fines: finesRes.data?.length,
-        sampleFine: finesRes.data?.[0],
-      });
 
       dispatch({ type: "SET_EMPLOYEES", payload: employeesRes.data });
       dispatch({
         type: "SET_VIOLATION_TYPES",
         payload: violationTypesRes.data,
       });
-      dispatch({ type: "SET_FINES", payload: finesRes.data });
+
+      // Load fines separately with filters
+      await loadFines();
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
@@ -61,18 +57,37 @@ function Dashboard() {
     }
   };
 
-  const applyFilters = () => {
+  const loadFines = async () => {
     try {
-      let filtered = [...fines];
+      const params = {};
 
-      // Filter by employee
-      if (filters.employee) {
-        filtered = filtered.filter(
-          (fine) => fine.employee === filters.employee,
-        );
-      }
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
+      if (filters.employeeId) params.employeeId = filters.employeeId;
+      if (filters.violationTypeId) params.violationTypeId = filters.violationTypeId;
 
-      // Filter by amount range
+      const finesRes = await finesAPI.getAll(params);
+
+      console.log("📊 Fines loaded with filters:", {
+        filters: params,
+        count: finesRes.data?.length,
+      });
+
+      dispatch({ type: "SET_FINES", payload: finesRes.data });
+
+      // Apply frontend-only filters (amount range, sorting)
+      applyFilters(finesRes.data);
+    } catch (error) {
+      console.error("Error loading fines:", error);
+      toast.error("Failed to load fines");
+    }
+  };
+
+  const applyFilters = (finesData = fines) => {
+    try {
+      let filtered = [...finesData];
+
+      // Filter by amount range (frontend only)
       if (filters.minAmount) {
         filtered = filtered.filter(
           (fine) => fine.amount >= parseFloat(filters.minAmount),
@@ -84,19 +99,19 @@ function Dashboard() {
         );
       }
 
-      // Sort
+      // Sort (frontend only)
       filtered.sort((a, b) => {
         switch (filters.sortBy) {
           case "date-desc":
-            return new Date(b.date) - new Date(a.date);
+            return new Date(b.date || b.fine_date) - new Date(a.date || a.fine_date);
           case "date-asc":
-            return new Date(a.date) - new Date(b.date);
+            return new Date(a.date || a.fine_date) - new Date(b.date || b.fine_date);
           case "amount-desc":
             return b.amount - a.amount;
           case "amount-asc":
             return a.amount - b.amount;
           case "employee":
-            return a.employee.localeCompare(b.employee);
+            return (a.employee || "").localeCompare(b.employee || "");
           default:
             return 0;
         }
@@ -117,7 +132,10 @@ function Dashboard() {
     dispatch({
       type: "SET_FILTERS",
       payload: {
-        employee: "",
+        startDate: "",
+        endDate: "",
+        employeeId: "",
+        violationTypeId: "",
         sortBy: "date-desc",
         minAmount: "",
         maxAmount: "",
@@ -153,48 +171,64 @@ function Dashboard() {
       {/* Fine Submission Section - Only for authenticated users */}
       {isAuthenticated && (
         <section className="card">
-          <div className="card-header">
+          <div
+            className="card-header cursor-pointer"
+            onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+          >
             <div>
               <h3 className="text-xl font-semibold">💰 Issue a Fine</h3>
               <p className="text-gray-600 mt-1">
                 Select an employee and violation type with visual confirmation
               </p>
             </div>
+            <div className="flex items-center text-gray-500">
+              {isAccordionOpen ? (
+                <ChevronUp size={20} className="transition-transform duration-200" />
+              ) : (
+                <ChevronDown size={20} className="transition-transform duration-200" />
+              )}
+            </div>
           </div>
 
-          {employees.length === 0 || violationTypes.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-5xl mb-4">📋</div>
-              <h4 className="text-lg font-medium text-gray-900 mb-2">
-                Setup Required
-              </h4>
-              <p className="text-gray-600 mb-4">
-                {employees.length === 0 && violationTypes.length === 0
-                  ? "Add employees and violation types first"
-                  : employees.length === 0
-                    ? "Add employees first to issue fines"
-                    : "Add violation types first to issue fines"}
-              </p>
-              <div className="flex gap-3 justify-center">
-                {employees.length === 0 && (
-                  <a href="/employees" className="btn btn-primary">
-                    Add Employees
-                  </a>
-                )}
-                {violationTypes.length === 0 && (
-                  <a href="/violations" className="btn btn-primary">
-                    Add Violations
-                  </a>
-                )}
+          <div
+            className={`accordion-content ${
+              isAccordionOpen ? 'accordion-open' : 'accordion-closed'
+            }`}
+          >
+            {employees.length === 0 || violationTypes.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-5xl mb-4">📋</div>
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
+                  Setup Required
+                </h4>
+                <p className="text-gray-600 mb-4">
+                  {employees.length === 0 && violationTypes.length === 0
+                    ? "Add employees and violation types first"
+                    : employees.length === 0
+                      ? "Add employees first to issue fines"
+                      : "Add violation types first to issue fines"}
+                </p>
+                <div className="flex gap-3 justify-center">
+                  {employees.length === 0 && (
+                    <a href="/employees" className="btn btn-primary">
+                      Add Employees
+                    </a>
+                  )}
+                  {violationTypes.length === 0 && (
+                    <a href="/violations" className="btn btn-primary">
+                      Add Violations
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <FineForm
-              employees={employees}
-              violationTypes={violationTypes}
-              onSubmit={loadData}
-            />
-          )}
+            ) : (
+              <FineForm
+                employees={employees}
+                violationTypes={violationTypes}
+                onSubmit={loadData}
+              />
+            )}
+          </div>
         </section>
       )}
 
@@ -208,6 +242,7 @@ function Dashboard() {
         <FinesFilters
           filters={filters}
           employees={employees}
+          violationTypes={violationTypes}
           onFilterChange={handleFilterChange}
           onReset={resetFilters}
           showEmployeeTotals={showEmployeeTotals}
@@ -220,7 +255,7 @@ function Dashboard() {
         {showEmployeeTotals && (
           <EmployeeTotals
             employees={employees}
-            onFilterByEmployee={(employee) => handleFilterChange({ employee })}
+            onFilterByEmployee={(employeeId) => handleFilterChange({ employeeId })}
           />
         )}
 

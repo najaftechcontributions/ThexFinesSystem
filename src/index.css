@@ -1508,9 +1508,12 @@ body {
 
 /* Form Group Enhancements */
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 10px;
 }
-
+.translate-top {
+  transform: translateY(-50%);
+  top: 50%;
+}
 .form-label {
   display: block;
   margin-bottom: 0.5rem;
@@ -2162,4 +2165,22 @@ body {
   .md\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+/* Accordion Styles */
+.accordion-content {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-open {
+  max-height: 2000px;
+  opacity: 1;
+  padding-top: var(--spacing-lg);
+}
+
+.accordion-closed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
 }

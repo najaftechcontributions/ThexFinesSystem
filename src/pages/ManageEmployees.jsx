@@ -172,7 +172,7 @@ function ManageEmployees() {
             <div className="relative">
               <Search
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2  translate-top text-gray-400"
               />
               <input
                 type="text"
@@ -187,7 +187,7 @@ function ManageEmployees() {
             <div className="relative">
               <Filter
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2  translate-top text-gray-400"
               />
               <select
                 value={sortBy}

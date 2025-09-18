@@ -9,10 +9,11 @@ import {
   LogOut,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { authAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 function Header() {
-  const { isAuthenticated, logout } = useApp();
+  const { isAuthenticated, user, logout } = useApp();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -43,27 +44,41 @@ function Header() {
           ) : (
             <Link to="/login" className="nav-link">
               <LogIn size={16} />
-              Login as Admin
+              Login
             </Link>
           )}
         </div>
 
         <div className="flex gap-2">
-          <Link to="/employees" className="nav-link">
-            <Users size={16} />
-            Employees
-          </Link>
+          {/* Show Employees link only for users with manage_employees permission */}
+          {authAPI.hasPermission(user, "manage_employees") && (
+            <Link to="/employees" className="nav-link">
+              <Users size={16} />
+              Employees
+            </Link>
+          )}
 
-          <Link to="/violations" className="nav-link">
-            <AlertTriangle size={16} />
-            Violations
-          </Link>
+          {/* Show Violations link only for users with manage_violations permission */}
+          {authAPI.hasPermission(user, "manage_violations") && (
+            <Link to="/violations" className="nav-link">
+              <AlertTriangle size={16} />
+              Violations
+            </Link>
+          )}
 
-          {isAuthenticated && (
+          {/* Show Settings link only for users with admin_settings permission */}
+          {authAPI.hasPermission(user, "admin_settings") && (
             <Link to="/settings" className="nav-link">
               <Settings size={16} />
               Settings
             </Link>
+          )}
+
+          {/* Show user role indicator */}
+          {isAuthenticated && user && (
+            <span className="nav-link text-blue-600 font-medium">
+              {user.role === "admin" ? "Admin" : "Viewer"}
+            </span>
           )}
         </div>
       </div>

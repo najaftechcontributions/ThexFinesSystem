@@ -71,7 +71,7 @@ function Login() {
           <div className="login-logo">
             <Lock size={40} className="text-blue-600" />
           </div>
-          <h1 className="text-3xl font-light mb-2">Admin Portal</h1>
+          <h1 className="text-3xl font-light mb-2">Login Portal</h1>
           <p className="opacity-90 text-sm">ThexSol Fine Management System</p>
         </div>
 
@@ -84,7 +84,7 @@ function Login() {
               <div className="relative">
                 <User
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2  translate-top text-gray-400"
                 />
                 <input
                   type="text"
@@ -106,7 +106,7 @@ function Login() {
               <div className="relative">
                 <Lock
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2  translate-top text-gray-400"
                 />
                 <input
                   type="password"
@@ -141,22 +141,42 @@ function Login() {
                   Logging in...
                 </div>
               ) : (
-                "Login to Admin"
+                "Login"
               )}
             </button>
           </form>
 
-          <div className="text-center mt-8 pt-6 border-t border-gray-200">
-            <p className="text-gray-600">
-              Want to view without admin privileges?{" "}
+          {/* <div className="text-center mt-8 pt-6 border-t border-gray-200 space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg text-left">
+              <h3 className="font-medium text-blue-900 mb-3">Demo Credentials:</h3>
+              <div className="space-y-3 text-sm">
+                <div className="bg-white p-3 rounded border border-blue-200">
+                  <div className="font-medium text-blue-900 mb-1">👑 Admin Account</div>
+                  <div className="text-blue-700">
+                    <strong>Username:</strong> {import.meta.env.VITE_ADMIN_USERNAME || "admin"}<br />
+                    <strong>Password:</strong> {import.meta.env.VITE_ADMIN_PASSWORD || "admin123"}
+                  </div>
+                  <div className="text-xs text-blue-600 mt-1">Full access to all features</div>
+                </div>
+                <div className="bg-white p-3 rounded border border-green-200">
+                  <div className="font-medium text-green-900 mb-1">👁️ Viewer Account</div>
+                  <div className="text-green-700">
+                    <strong>Username:</strong> {import.meta.env.VITE_VIEWER_USERNAME || "viewer"}<br />
+                    <strong>Password:</strong> {import.meta.env.VITE_VIEWER_PASSWORD || "view123"}
+                  </div>
+                  <div className="text-xs text-green-600 mt-1">View-only access</div>
+                </div>
+              </div>
+            </div>
+            <p className="text-gray-600 text-sm">
               <Link
                 to="/"
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
-                Continue as Viewer
+                Go back to dashboard
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

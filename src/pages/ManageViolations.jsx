@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, AlertCircle } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { violationTypesAPI } from "../services/api";
 import ViolationCard from "../components/Violations/ViolationCard";
@@ -9,8 +9,9 @@ import toast from "react-hot-toast";
 import { forceReloadViolations } from "../utils/helpers";
 
 function ManageViolations() {
-  const { violationTypes, dispatch, isAuthenticated } = useApp();
+  const { violationTypes, dispatch, isAuthenticated, user, isLoading: contextLoading } = useApp();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingViolation, setEditingViolation] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,8 +20,14 @@ function ManageViolations() {
   const [filteredViolations, setFilteredViolations] = useState([]);
 
   useEffect(() => {
-    loadViolationTypes();
-  }, []);
+    console.log("📋 ManageViolations - Component mounted");
+    console.log("🔐 Auth Status:", { isAuthenticated, user, contextLoading });
+    console.log("📊 Current violation types:", violationTypes);
+
+    if (!contextLoading) {
+      loadViolationTypes();
+    }
+  }, [contextLoading]);
 
   useEffect(() => {
     filterAndSortViolations();
@@ -28,12 +35,18 @@ function ManageViolations() {
 
   const loadViolationTypes = async () => {
     try {
+      console.log("📋 Loading violation types...");
       setIsLoading(true);
+      setError(null);
+
       const response = await violationTypesAPI.getAll();
+      console.log("✅ Violation types loaded:", response.data);
+
       dispatch({ type: "SET_VIOLATION_TYPES", payload: response.data });
     } catch (error) {
-      console.error("Error loading violation types:", error);
-      toast.error("Failed to load violation types");
+      console.error("❌ Error loading violation types:", error);
+      setError(error.message || "Failed to load violation types");
+      toast.error(`Failed to load violation types: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -133,8 +146,55 @@ function ManageViolations() {
     }
   };
 
-  if (isLoading) {
+  if (contextLoading || isLoading) {
     return <LoadingSpinner text="Loading violation types..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold">⚠️ Violation Management</h2>
+            <p className="text-gray-600 mt-1">
+              Configure violation types, penalties, and severity levels
+            </p>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <AlertCircle className="text-red-500" size={24} />
+            <div>
+              <h3 className="font-medium text-red-800">Error Loading Violations</h3>
+              <p className="text-red-600 text-sm">{error}</p>
+              <button
+                onClick={loadViolationTypes}
+                className="mt-2 btn btn-sm btn-primary"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🔒</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Authentication Required
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Please log in to access violation management
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -162,7 +222,7 @@ function ManageViolations() {
             <div className="relative">
               <Search
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2  translate-top text-gray-400"
               />
               <input
                 type="text"
@@ -188,7 +248,7 @@ function ManageViolations() {
             <div className="relative">
               <Filter
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2  translate-top text-gray-400"
               />
               <select
                 value={sortBy}

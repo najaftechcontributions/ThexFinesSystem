@@ -12,10 +12,14 @@ const initialState = {
   fines: [],
   adminSettings: {},
   filters: {
-    employee: "",
+    startDate: "",
+    endDate: "",
+    employeeId: "",
+    violationTypeId: "",
     sortBy: "date-desc",
     minAmount: "",
     maxAmount: "",
+    searchTerm: "",
   },
 };
 
@@ -108,7 +112,7 @@ function appReducer(state, action) {
       return { ...state, adminSettings: action.payload };
 
     case "SET_FILTERS":
-      return { ...state, filters: action.payload };
+      return { ...state, filters: { ...state.filters, ...action.payload } };
 
     default:
       return state;

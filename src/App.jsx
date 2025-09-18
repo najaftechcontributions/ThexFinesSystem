@@ -7,16 +7,30 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AppProvider } from "./context/AppContext";
+import { initializeDatabase } from "./services/turso";
 import Layout from "./components/Layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ManageEmployees from "./pages/ManageEmployees";
 import ManageViolations from "./pages/ManageViolations";
 import AdminSettings from "./pages/AdminSettings";
+import ProtectedRoute from "./components/UI/ProtectedRoute";
 
 function App() {
   useEffect(() => {
-    console.log("🚀 Fine Tracker Application Started");
+    async function initApp() {
+      try {
+        console.log("🚀 Fine Tracker Application Started");
+        await initializeDatabase();
+      } catch (error) {
+        console.error("❌ Database initialization failed:", error);
+        // Don't prevent app from loading if database fails
+        console.warn("⚠️ App will continue to run, but database features may not work");
+      }
+    }
+
+    // Only initialize once per app session
+    initApp();
   }, []);
 
   return (
@@ -27,9 +41,30 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
-              <Route path="employees" element={<ManageEmployees />} />
-              <Route path="violations" element={<ManageViolations />} />
-              <Route path="settings" element={<AdminSettings />} />
+              <Route
+                path="employees"
+                element={
+                  <ProtectedRoute permission="manage_employees">
+                    <ManageEmployees />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="violations"
+                element={
+                  <ProtectedRoute permission="manage_violations">
+                    <ManageViolations />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="settings"
+                element={
+                  <ProtectedRoute permission="admin_settings">
+                    <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
