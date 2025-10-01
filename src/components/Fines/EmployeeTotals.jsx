@@ -90,7 +90,7 @@ function EmployeeTotals({ employees, onFilterByEmployee }) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow_scroll">
         <table className="table">
           <thead>
             <tr>

@@ -1386,6 +1386,24 @@ body {
 .overflow-x-auto {
   overflow-x: auto;
 }
+.overflow_scroll {
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;   /* vertical scroll */
+  overflow-x: auto;   /* horizontal scroll */
+}
+
+.overflow_scroll table {
+  border-collapse: separate; /* important: not collapse */
+  width: 100%;
+}
+
+.overflow_scroll thead th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc; 
+  z-index: 10; /* higher than td */
+}
+
 
 .overflow-y-auto {
   overflow-y: auto;
@@ -1510,10 +1528,12 @@ body {
 .form-group {
   margin-bottom: 10px;
 }
+
 .translate-top {
   transform: translateY(-50%);
   top: 50%;
 }
+
 .form-label {
   display: block;
   margin-bottom: 0.5rem;
@@ -1966,8 +1986,10 @@ body {
 }
 
 .overflow-scroll {
-  overflow: scroll!important;
-}/* Layout utility classes to replace Tailwind */
+  overflow: scroll !important;
+}
+
+/* Layout utility classes to replace Tailwind */
 .flex {
   display: flex;
 }
@@ -2008,15 +2030,15 @@ body {
   gap: 1.5rem;
 }
 
-.space-y-2 > * + * {
+.space-y-2>*+* {
   margin-top: 0.5rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 
-.space-y-6 > * + * {
+.space-y-6>*+* {
   margin-top: 1.5rem;
 }
 

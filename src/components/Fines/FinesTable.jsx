@@ -160,7 +160,7 @@ function FinesTable({
 
   return (
     <>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow_scroll">
         <table className="table">
           <thead>
             <tr>
