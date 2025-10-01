@@ -1,11 +1,19 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@libsql/client';
 
-// Initialize Turso client
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Initialize Turso client with fallback support
+function getTursoClient() {
+  const url = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
+
+  if (!url) {
+    throw new Error('Database URL not configured. Please set TURSO_DATABASE_URL environment variable.');
+  }
+
+  return createClient({ url, authToken });
+}
+
+const turso = getTursoClient();
 
 // Create email transporter
 function createTransporter(smtpConfig) {
@@ -122,11 +130,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid email address format' });
     }
 
-    // Check if environment variables are set
-    if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+    // Check if database connection is available
+    const dbUrl = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
+    const dbToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
+
+    if (!dbUrl) {
       return res.status(500).json({
         error: 'Database configuration not found',
-        hint: 'Please check your environment variables'
+        hint: 'Please set TURSO_DATABASE_URL in your environment variables (Vercel dashboard → Settings → Environment Variables)',
+        setup_required: true
       });
     }
 

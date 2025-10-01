@@ -495,7 +495,7 @@ function AdminSettings() {
                         }
                       >
                         <Mail size={20} />
-                        Test Configuration (Preview Only)
+                        Send Test Email
                       </button>
                     </div>
                   </form>

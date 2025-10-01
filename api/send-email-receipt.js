@@ -1,11 +1,19 @@
 import nodemailer from 'nodemailer';
 import { createClient } from '@libsql/client';
 
-// Initialize Turso client
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Initialize Turso client with fallback support
+function getTursoClient() {
+  const url = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
+
+  if (!url) {
+    throw new Error('Database URL not configured. Please set TURSO_DATABASE_URL environment variable.');
+  }
+
+  return createClient({ url, authToken });
+}
+
+const turso = getTursoClient();
 
 // Create email transporter
 function createTransporter(smtpConfig) {

@@ -15,10 +15,17 @@
 
 ### 1. Environment Variables
 
-Create a `.env.local` file in your project root with your Turso database credentials:
+**IMPORTANT**: You need to set up environment variables in **two places** for email functionality to work:
+
+#### A. Local Development (.env.local file)
+Create a `.env.local` file in your project root:
 
 ```bash
-# Turso Database Configuration
+# Frontend Database Configuration (with VITE_ prefix)
+VITE_TURSO_DATABASE_URL=your_turso_database_url_here
+VITE_TURSO_AUTH_TOKEN=your_turso_auth_token_here
+
+# Server-side Database Configuration (for email APIs)
 TURSO_DATABASE_URL=your_turso_database_url_here
 TURSO_AUTH_TOKEN=your_turso_auth_token_here
 
@@ -28,6 +35,16 @@ VITE_ADMIN_PASSWORD=admin123
 VITE_VIEWER_USERNAME=viewer
 VITE_VIEWER_PASSWORD=view123
 ```
+
+#### B. Vercel Deployment (Environment Variables)
+In your Vercel dashboard → Project Settings → Environment Variables, add:
+
+- `TURSO_DATABASE_URL` = your_turso_database_url_here
+- `TURSO_AUTH_TOKEN` = your_turso_auth_token_here
+- `VITE_TURSO_DATABASE_URL` = your_turso_database_url_here
+- `VITE_TURSO_AUTH_TOKEN` = your_turso_auth_token_here
+
+**Note**: The `VITE_` prefixed variables are for the frontend, and the non-prefixed ones are for the server-side email API functions.
 
 ### 2. Gmail App Password Setup
 
@@ -59,7 +76,12 @@ For Gmail SMTP to work, you need an **App Password** (not your regular Gmail pas
 2. **Deploy to Vercel** (automatic if connected to Git)
 3. **Add environment variables** in Vercel dashboard:
    - Go to your project → Settings → Environment Variables
-   - Add `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
+   - Add these **4 variables**:
+     - `TURSO_DATABASE_URL` = your database URL
+     - `TURSO_AUTH_TOKEN` = your database token
+     - `VITE_TURSO_DATABASE_URL` = your database URL (same as above)
+     - `VITE_TURSO_AUTH_TOKEN` = your database token (same as above)
+4. **Redeploy** your project after adding environment variables
 
 ### Local Development
 
@@ -99,21 +121,33 @@ npm run dev
 
 ### Common Issues:
 
-1. **"Authentication failed"**
+1. **"Database configuration not found" or "Email system not working"**
+   - **Cause**: Missing environment variables on server
+   - **Solution**: Make sure you have set up ALL 4 environment variables in Vercel:
+     - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `VITE_TURSO_DATABASE_URL`, `VITE_TURSO_AUTH_TOKEN`
+   - After adding variables, **redeploy** your Vercel project
+
+2. **"Authentication failed"**
    - Make sure you're using Gmail App Password, not regular password
    - Verify 2FA is enabled on Gmail account
 
-2. **"SMTP server not found"**
+3. **"SMTP server not found"**
    - Check SMTP server address: `smtp.gmail.com`
    - Verify port: `587`
 
-3. **"Connection failed"**
+4. **"Connection failed"**
    - Check your internet connection
    - Verify Gmail allows "Less secure app access" or use App Password
 
-4. **"Employee email not found"**
+5. **"Employee email not found"**
    - Make sure the employee has an email address in their profile
    - Go to Manage Employees → Edit employee to add email
+
+6. **App says "email sent" but no email received**
+   - Check that environment variables are set correctly in Vercel
+   - Verify SMTP configuration in Admin Settings
+   - Test with the "Send Test Email" button first
+   - Check spam/junk folder
 
 ### Testing Tips:
 
