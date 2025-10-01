@@ -88,6 +88,32 @@ function Dashboard() {
     try {
       let filtered = [...finesData];
 
+      // Filter by search term (frontend only)
+      if (filters.searchTerm && filters.searchTerm.trim()) {
+        const searchTerm = filters.searchTerm.toLowerCase().trim();
+        filtered = filtered.filter((fine) => {
+          // Search in employee name
+          const employeeMatch = fine.employee?.toLowerCase().includes(searchTerm);
+
+          // Search in violation type (extracted from reason)
+          const reasonParts = fine.reason?.split(": ") || [];
+          const violationType = reasonParts.length > 1 ? reasonParts[0] : "";
+          const violationTypeMatch = violationType.toLowerCase().includes(searchTerm);
+
+          // Search in actual reason (after the violation type)
+          const actualReason = reasonParts.length > 1 ? reasonParts.slice(1).join(": ") : fine.reason || "";
+          const reasonMatch = actualReason.toLowerCase().includes(searchTerm);
+
+          // Search in notes
+          const notesMatch = fine.notes?.toLowerCase().includes(searchTerm);
+
+          // Search in amount (as string)
+          const amountMatch = fine.amount?.toString().includes(searchTerm);
+
+          return employeeMatch || violationTypeMatch || reasonMatch || notesMatch || amountMatch;
+        });
+      }
+
       // Filter by amount range (frontend only)
       if (filters.minAmount) {
         filtered = filtered.filter(

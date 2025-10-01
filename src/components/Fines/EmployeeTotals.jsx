@@ -197,7 +197,12 @@ function EmployeeTotals({ employees, onFilterByEmployee }) {
                     <div className="flex gap-2">
                       {/* Filter Button */}
                       <button
-                        onClick={() => onFilterByEmployee(empTotal.employee)}
+                        onClick={() => {
+                          const emp = getEmployee(empTotal.employee);
+                          if (emp) {
+                            onFilterByEmployee(emp.id);
+                          }
+                        }}
                         className="btn btn-sm btn-secondary"
                         title="Filter by this employee"
                       >
