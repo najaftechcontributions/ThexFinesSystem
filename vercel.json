@@ -1,13 +1,13 @@
 {
   "functions": {
     "api/send-test-email.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     },
     "api/send-email-receipt.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     },
     "api/send-employee-report.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
