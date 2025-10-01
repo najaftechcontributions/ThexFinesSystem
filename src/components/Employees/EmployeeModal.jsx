@@ -8,7 +8,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
     department: "",
     employee_id: "",
     phone: "",
-    email: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,7 +18,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
         department: employee.department || "",
         employee_id: employee.employee_id || "",
         phone: employee.phone || "",
-        email: employee.email || "",
       });
     } else {
       setFormData({
@@ -27,7 +25,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
         department: "",
         employee_id: "",
         phone: "",
-        email: "",
       });
     }
   }, [employee, isOpen]);
@@ -53,7 +50,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
       submitData.append("department", formData.department.trim());
       submitData.append("employee_id", formData.employee_id.trim());
       submitData.append("phone", formData.phone.trim());
-      submitData.append("email", formData.email.trim());
 
       await onSubmit(submitData);
 
@@ -63,7 +59,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
         department: "",
         employee_id: "",
         phone: "",
-        email: "",
       });
     } catch (error) {
       console.error("Error submitting employee:", error);
@@ -132,17 +127,6 @@ function EmployeeModal({ isOpen, onClose, employee, onSubmit }) {
           </div>
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="form-input"
-            placeholder="employee@company.com"
-          />
-        </div>
 
         {/* Form Actions */}
         <div className="flex gap-4 justify-end">

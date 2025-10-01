@@ -80,7 +80,6 @@ async function createTables() {
       department TEXT,
       employee_id TEXT,
       phone TEXT,
-      email TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -122,14 +121,8 @@ async function createTables() {
     CREATE TABLE IF NOT EXISTS admin_settings (
       id INTEGER PRIMARY KEY DEFAULT 1,
       admin_name TEXT,
-      admin_email TEXT,
       admin_phone TEXT,
       company_name TEXT,
-      smtp_server TEXT,
-      smtp_port INTEGER,
-      smtp_username TEXT,
-      smtp_password TEXT,
-      email_signature TEXT,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -145,20 +138,14 @@ async function insertDefaultSettings() {
     await client.execute({
       sql: `
         INSERT INTO admin_settings (
-          id, admin_name, admin_email, admin_phone, company_name,
-          smtp_server, smtp_port, smtp_username, email_signature
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          id, admin_name, admin_phone, company_name
+        ) VALUES (?, ?, ?, ?)
       `,
       args: [
         1,
         "System Administrator",
-        "admin@company.com",
         "+92-300-0000000",
         "Your Company",
-        "",
-        587,
-        "",
-        "Best regards,<br>Fine Management System",
       ],
     });
   }

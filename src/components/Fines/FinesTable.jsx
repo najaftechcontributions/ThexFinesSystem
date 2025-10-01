@@ -290,16 +290,6 @@ function FinesTable({
                         <Printer size={16} />
                       </button>
 
-                      {/* Email Receipt */}
-                      {employee?.email && (
-                        <button
-                          onClick={() => handleEmailReceipt(fine)}
-                          className="btn btn-sm btn-secondary"
-                          title="Email Receipt"
-                        >
-                          <Mail size={16} />
-                        </button>
-                      )}
 
                       {/* Admin Actions */}
                       {isAuthenticated && (

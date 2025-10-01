@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Filter, Mail, TrendingUp } from "lucide-react";
-import { employeesAPI, finesAPI } from "../../services/api";
+import { Filter, TrendingUp } from "lucide-react";
+import { employeesAPI } from "../../services/api";
 import toast from "react-hot-toast";
 
 function EmployeeTotals({ employees, onFilterByEmployee }) {
@@ -24,29 +24,7 @@ function EmployeeTotals({ employees, onFilterByEmployee }) {
     }
   };
 
-  const handleEmailReport = async (employeeName) => {
-    const employee = employees.find((emp) => emp.name === employeeName);
-    if (!employee || !employee.email) {
-      toast.error("Employee email not found");
-      return;
-    }
 
-    if (
-      !window.confirm(
-        `Send complete fine report to ${employeeName} (${employee.email})?`,
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await finesAPI.emailEmployeeReport(employeeName);
-      toast.success("Employee report emailed successfully!");
-    } catch (error) {
-      console.error("Error emailing employee report:", error);
-      toast.error("Failed to send employee report");
-    }
-  };
 
   const getEmployee = (employeeName) => {
     return employees.find((emp) => emp.name === employeeName);
@@ -209,16 +187,7 @@ function EmployeeTotals({ employees, onFilterByEmployee }) {
                         <Filter size={16} />
                       </button>
 
-                      {/* Email Report Button */}
-                      {employee?.email && empTotal.fine_count > 0 && (
-                        <button
-                          onClick={() => handleEmailReport(empTotal.employee)}
-                          className="btn btn-sm btn-primary"
-                          title="Email complete report"
-                        >
-                          <Mail size={16} />
-                        </button>
-                      )}
+
                     </div>
                   </td>
                 </tr>

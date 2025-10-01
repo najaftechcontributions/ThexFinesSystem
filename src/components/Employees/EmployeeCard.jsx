@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit, Trash2, Mail, Phone } from "lucide-react";
+import { Edit, Trash2, Phone } from "lucide-react";
 
 function EmployeeCard({ employee, onEdit, onDelete, isAuthenticated }) {
   return (
@@ -40,12 +40,6 @@ function EmployeeCard({ employee, onEdit, onDelete, isAuthenticated }) {
 
         {/* Contact Information */}
         <div className="mt-4 space-y-2">
-          {employee.email && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Mail size={14} />
-              <span>{employee.email}</span>
-            </div>
-          )}
           {employee.phone && (
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Phone size={14} />
