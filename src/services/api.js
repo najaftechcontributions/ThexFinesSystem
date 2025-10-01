@@ -469,25 +469,87 @@ export const finesAPI = {
   },
 
   async emailReceipt(fineId, testEmail = null) {
-    // Email simulation for demo
-    return {
-      data: {
-        status: "success",
-        message: "Email simulation completed. Check the preview window for email content.",
-        note: "Simulation only - no real email sent",
-      },
-    };
+    try {
+      const response = await fetch(`/api/send-email-receipt?fineId=${fineId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email');
+      }
+
+      return { data: result };
+    } catch (error) {
+      handleError(error);
+    }
   },
 
   async emailEmployeeReport(employeeName) {
-    // Email simulation for demo
-    return {
-      data: {
-        status: "success",
-        message: `Employee report simulation for ${employeeName}`,
-        note: "Simulation only - no real email sent",
-      },
-    };
+    try {
+      const response = await fetch(`/api/send-employee-report?employeeName=${encodeURIComponent(employeeName)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email');
+      }
+
+      return { data: result };
+    } catch (error) {
+      handleError(error);
+    }
+  },
+
+  async sendTestEmail(testEmail) {
+    try {
+      const response = await fetch('/api/send-test-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ testEmail }),
+      });
+
+      // Check if response has content before trying to parse JSON
+      const responseText = await response.text();
+
+      if (!responseText.trim()) {
+        throw new Error('Server returned empty response. Please check your server configuration.');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Response text:', responseText);
+        throw new Error(`Invalid response from server. Response: ${responseText.substring(0, 200)}...`);
+      }
+
+      if (!response.ok) {
+        throw new Error(result.error || `Server error: ${response.status} ${response.statusText}`);
+      }
+
+      return { data: result };
+    } catch (error) {
+      // Enhanced error logging
+      console.error('Test email error details:', {
+        message: error.message,
+        testEmail,
+        timestamp: new Date().toISOString()
+      });
+      handleError(error);
+    }
   },
 };
 

@@ -121,22 +121,29 @@ function AdminSettings() {
   };
 
   const handleTestEmail = async () => {
-    try {
-      toast.loading(
-        "Simulating email to adil.ahmed143.ak@gmail.com (preview only)...",
-      );
+    if (!emailData.smtp_server || !emailData.smtp_username || !emailData.smtp_password) {
+      toast.error("Please configure all SMTP settings before testing");
+      return;
+    }
 
-      // Test by sending a test email to adil.ahmed143.ak@gmail.com
-      const result = await finesAPI.emailReceipt(
-        0,
-        "adil.ahmed143.ak@gmail.com",
-      );
+    const testEmail = prompt("Enter email address to send test email to:", "test@example.com");
+    if (!testEmail) return;
+
+    try {
+      // Save settings first
+      await adminAPI.updateSettings(emailData);
+
+      toast.loading(`Sending test email to ${testEmail}...`);
+
+      // Send actual test email
+      const result = await finesAPI.sendTestEmail(testEmail);
 
       toast.dismiss();
-      toast.success(result.data.message);
+      toast.success(`Test email sent successfully to ${testEmail}`);
     } catch (error) {
       toast.dismiss();
-      toast.error(error.message || "Email configuration test failed");
+      console.error("Error sending test email:", error);
+      toast.error(error.message || "Failed to send test email");
     }
   };
 
@@ -331,35 +338,26 @@ function AdminSettings() {
                 </div>
               </div>
 
-              {/* Important Notice */}
-              <div className="card bg-orange-50 border-orange-200">
+              {/* Email Feature Notice */}
+              <div className="card bg-green-50 border-green-200">
                 <div className="card-header">
-                  <h4 className="text-orange-800">⚠️ Important Notice</h4>
+                  <h4 className="text-green-800">✅ Email System Ready</h4>
                 </div>
-                <div className="text-sm text-orange-700 space-y-2">
+                <div className="text-sm text-green-700 space-y-2">
                   <p>
-                    <strong>This is a frontend-only application.</strong>
+                    <strong>Your email system is now fully functional!</strong>
                   </p>
                   <p>
-                    Email functionality shows{" "}
-                    <strong>previews and simulations</strong> only. No real
-                    emails are sent because browsers cannot send emails directly
-                    for security reasons.
-                  </p>
-                  <p>
-                    <strong>To send real emails, you would need:</strong>
+                    The system can now send <strong>real emails</strong> including:
                   </p>
                   <ul className="list-disc list-inside ml-4 space-y-1">
-                    <li>A backend server (Node.js, PHP, Python, etc.)</li>
-                    <li>
-                      Server-side email library (nodemailer, PHPMailer, etc.)
-                    </li>
-                    <li>SMTP configuration on the server</li>
+                    <li>Fine receipts to employees</li>
+                    <li>Employee fine reports</li>
+                    <li>Test emails to verify configuration</li>
                   </ul>
                   <p className="mt-2">
                     <em>
-                      The test button shows realistic email previews to verify
-                      your SMTP configuration is correct.
+                      Configure your SMTP settings below and use the test button to verify everything works correctly.
                     </em>
                   </p>
                 </div>
