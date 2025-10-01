@@ -6,8 +6,15 @@ function getTursoClient() {
   const url = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
 
+  console.log('Environment check:', {
+    hasUrl: !!url,
+    hasToken: !!authToken,
+    urlPrefix: url ? url.substring(0, 20) + '...' : 'none',
+    nodeEnv: process.env.NODE_ENV
+  });
+
   if (!url) {
-    throw new Error('Database URL not configured. Please set TURSO_DATABASE_URL environment variable.');
+    throw new Error('Database URL not configured. Please set TURSO_DATABASE_URL environment variable in Vercel dashboard.');
   }
 
   return createClient({ url, authToken });
@@ -110,10 +117,24 @@ function generateTestEmailHTML(settings) {
 }
 
 export default async function handler(req, res) {
-  // Ensure we always return JSON
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Content-Type', 'application/json');
 
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
+    console.log('Function started:', {
+      method: req.method,
+      hasBody: !!req.body,
+      timestamp: new Date().toISOString()
+    });
+
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -134,11 +155,18 @@ export default async function handler(req, res) {
     const dbUrl = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
     const dbToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
 
+    console.log('Database configuration check:', {
+      hasDbUrl: !!dbUrl,
+      hasDbToken: !!dbToken,
+      envKeys: Object.keys(process.env).filter(k => k.includes('TURSO'))
+    });
+
     if (!dbUrl) {
       return res.status(500).json({
         error: 'Database configuration not found',
         hint: 'Please set TURSO_DATABASE_URL in your environment variables (Vercel dashboard → Settings → Environment Variables)',
-        setup_required: true
+        setup_required: true,
+        available_env: Object.keys(process.env).filter(k => k.includes('TURSO'))
       });
     }
 
@@ -274,13 +302,18 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Unexpected error in test email handler:', error);
+    console.error('Unexpected error in test email handler:', {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
 
     // Ensure we always return a JSON response, even for unexpected errors
     return res.status(500).json({
-      error: 'An unexpected error occurred',
-      details: error.message || 'Unknown error',
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: 'Function execution failed',
+      message: error.message || 'Unknown error occurred',
+      hint: 'Check Vercel function logs for more details',
+      timestamp: new Date().toISOString()
     });
   }
 }
