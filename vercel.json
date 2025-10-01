@@ -1,13 +1,7 @@
 {
   "functions": {
-    "api/send-test-email.js": {
-      "runtime": "nodejs20.x"
-    },
-    "api/send-email-receipt.js": {
-      "runtime": "nodejs20.x"
-    },
-    "api/send-employee-report.js": {
-      "runtime": "nodejs20.x"
+    "api/*.js": {
+      "runtime": "@vercel/node@2"
     }
   },
   "rewrites": [
